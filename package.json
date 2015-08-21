@@ -1,0 +1,23 @@
+{
+  "name": "foursquare-heatmap",
+  "version": "1.0.0",
+  "description": "foursquare heatmap",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/delfrrr/foursquare-heatmap.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/delfrrr/foursquare-heatmap#readme",
+  "dependencies": {
+    "bluebird": "^2.9.34",
+    "commander": "^2.8.1",
+    "request": "^2.61.0",
+    "to-csv": "^0.1.0",
+    "turf": "^2.0.2"
+  }
+}
