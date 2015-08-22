@@ -16,7 +16,11 @@
 var program = require('commander'),
     packagejson = require('./package.json'),
     csv = require('to-csv'),
-    turf = require('turf');
+    turf = require('turf'),
+    Promise = require('bluebird'),
+    EXPLORE_URL = 'https://api.foursquare.com/v2/venues/explore?ll=40.7,-74&client_id=CLIENT_ID&client_secret=CLIENT_SECRET',
+    url = require('url'),
+    request = Promise.promisify(require('request'));
 
 program
     .version(packagejson.version)
@@ -25,7 +29,7 @@ program
 program.parse(process.argv);
 
 var CLIENT_ID = '3S4FSCICKVNFXZ2EUKRV0LIL3TS3B1JMEOXTSEVNSE1KAFWU',
-    CLIENT_SECRET = '3S4FSCICKVNFXZ2EUKRV0LIL3TS3B1JMEOXTSEVNSE1KAFWU',
+    CLIENT_SECRET = 'OA1332ZZRT33OMPEML3U42QDIQX4NBDGLZG2PWHGGYBNIKKV',
     centerLl = [52.516667, 13.383333],
     radius = program.radius * 1000;//m
 
@@ -77,4 +81,39 @@ axis1.forEach(function (ll) {
         net.push([lat, lng]);
     });
 });
-console.log('net length %j', net.length);
+
+/**
+ * format foursquare url
+ * @param {ll} ll
+ * @returns {string} url
+ */
+function formatUrl(ll) {
+    var urlObj = url.parse(EXPLORE_URL, true);
+    urlObj.query.ll = ll.join();
+    urlObj.query.client_id = CLIENT_ID;
+    urlObj.query.client_secret = CLIENT_SECRET;
+    urlObj.query.section = 'food';
+    urlObj.query.limit = 50;
+    urlObj.query.radius = 250;
+    urlObj.query.v = '20150820';
+    delete urlObj.search;
+    return url.format(urlObj);
+}
+
+/**
+ * fetch data at the point
+ * @param {ll} ll
+ */
+function fetch(ll) {
+    var reqUrl = formatUrl(ll);
+    request(reqUrl).then(function (res) {
+        var result = JSON.parse(res[0].body);
+        console.log([].concat.apply([], result.response.groups.map(function (group) {
+            return group.items;
+        })).map(function (item) {
+            return item.venue;
+        }));
+    }).done();
+}
+
+fetch(net[0]);
