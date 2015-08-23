@@ -1,0 +1,10 @@
+{
+  "libs": [
+    "browser"
+  ],
+  "plugins": {
+    "complete_strings": {},
+    "node": {},
+    "requirejs": {}
+  }
+}

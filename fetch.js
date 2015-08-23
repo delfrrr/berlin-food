@@ -18,6 +18,9 @@ var program = require('commander'),
     csv = require('to-csv'),
     turf = require('turf'),
     Promise = require('bluebird'),
+    Mongo = require('schema-check-mongo-wrapper'),
+    connection = new Mongo.Connection('mongodb://localhost:27017/foursqare'),
+    collection = connection.collection('venues'),
     EXPLORE_URL = 'https://api.foursquare.com/v2/venues/explore?ll=40.7,-74&client_id=CLIENT_ID&client_secret=CLIENT_SECRET',
     url = require('url'),
     request = Promise.promisify(require('request'));
@@ -94,10 +97,22 @@ function formatUrl(ll) {
     urlObj.query.client_secret = CLIENT_SECRET;
     urlObj.query.section = 'food';
     urlObj.query.limit = 50;
-    urlObj.query.radius = 250;
+    urlObj.query.radius = 125;
     urlObj.query.v = '20150820';
     delete urlObj.search;
     return url.format(urlObj);
+}
+
+function insertOnce(venue) {
+    var id = venue.id;
+    return collection.find({id: id}).toArray().then(function (res) {
+        if (res.length === 0) {
+            console.log('inserted %s', venue.name);
+            return collection.insert(venue);
+        } else {
+            console.log('skiped %s', venue.name);
+        }
+    });
 }
 
 /**
@@ -106,14 +121,39 @@ function formatUrl(ll) {
  */
 function fetch(ll) {
     var reqUrl = formatUrl(ll);
-    request(reqUrl).then(function (res) {
-        var result = JSON.parse(res[0].body);
-        console.log([].concat.apply([], result.response.groups.map(function (group) {
-            return group.items;
-        })).map(function (item) {
-            return item.venue;
-        }));
-    }).done();
+    console.log(reqUrl);
+    return request(reqUrl).then(function (res) {
+        var result = JSON.parse(res[0].body),
+            venues = [].concat.apply([], result.response.groups.map(function (group) {
+                return group.items;
+            })).map(function (item) {
+                return item.venue;
+            });
+        return Promise.all(venues.map(insertOnce));
+    });
 }
 
-fetch(net[0]);
+console.log('radius %j m, net length %j, apr time %j min', radius, net.length, Math.round(net.length/60) );
+
+/**
+ * fetch cells from net recursively 
+ * @param {Number} i
+ */
+function fetchNet(i) {
+    if (i < net.length) {
+        Promise.delay(1000).then(function () {
+            return fetch(net[i]).timeout(5000).catch(function (err) {
+                console.log(err);
+            });
+        }).finally(function (err) {
+            if (err instanceof Error) {
+                console.error('errorrrr');
+            }
+            fetchNet(++i);
+        }).done();
+    } else {
+        process.exit(0);
+    }
+}
+
+fetchNet(0);
