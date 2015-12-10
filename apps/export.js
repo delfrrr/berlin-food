@@ -3,7 +3,7 @@
  */
 
 var program = require('commander'),
-    packagejson = require('./package.json'),
+    packagejson = require('./../package.json'),
     Mongo = require('schema-check-mongo-wrapper'),
     connection = new Mongo.Connection('mongodb://localhost:27017/foursqare'),
     collection = connection.collection('venues'),
@@ -11,14 +11,12 @@ var program = require('commander'),
 
 program
     .version(packagejson.version)
+    .option('-f, --format [format]', 'Output format', /^(csv)|(geojson)$/, 'csv')
+    .option('-r, --rating [number]', 'Minimal rating', 9)
     .description('export data');
 program.parse(process.argv);
 
-collection.find({
-    rating: {
-        $gte: 6
-    }
-}).toArray().then(function (venues) {
+function outputCsv(venues) {
     console.log(csv(venues.map(function (venue) {
         return {
             rating: venue.rating,
@@ -26,5 +24,40 @@ collection.find({
             lng: venue.location.lng
         };
     })));
+}
+
+function outputGeojson(venues) {
+    console.log(JSON.stringify(venues.map(function (venue) {
+        return {
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [
+                    venue.location.lat,
+                    venue.location.lng
+                ]
+            },
+            'properties': {
+                'title': venue.name,
+                'marker-color': '#' + venue.ratingColor,
+            }
+         };
+    })));
+}
+
+collection.find({
+    rating: {
+        $gte: program.rating
+    }
+}).toArray().then(function (venues) {
+    if (program.format === 'csv') {
+        outputCsv(venues);
+    } else {
+        outputGeojson(venues);
+    }
+}).fail(function (e) {
+    console.error(e);
+}).always(function (p) {
+    p.done();
     process.exit(0);
 });
