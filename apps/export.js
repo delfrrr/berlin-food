@@ -44,10 +44,9 @@ function outputGeojson(venues) {
          };
     })));
 }
-
 collection.find({
     rating: {
-        $gte: program.rating
+        $gte: Number(program.rating)
     }
 }).toArray().then(function (venues) {
     if (program.format === 'csv') {
