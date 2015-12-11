@@ -1,6 +1,6 @@
 {
   "name": "foursquare-heatmap",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "foursquare heatmap",
   "main": "index.js",
   "scripts": {
@@ -16,6 +16,8 @@
   "dependencies": {
     "bluebird": "^2.9.34",
     "commander": "^2.8.1",
+    "react": "^0.14.3",
+    "react-dom": "^0.14.3",
     "request": "^2.61.0",
     "schema-check-mongo-wrapper": "^0.1.0",
     "to-csv": "^0.1.0",
