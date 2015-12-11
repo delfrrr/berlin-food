@@ -8,6 +8,7 @@ var express = require('express');
 var app = express();
 var R = require('react');
 var RDS = require('react-dom/server');
+var MAP_BOX_TOKEN = 'pk.eyJ1IjoiZGVsZnJyciIsImEiOiJjaWkyYWRmdncwMG1sdG9rZmozdGZ3bnFoIn0.ARqPIvrkYl2hIXauNK3PLA';
 
 program
     .version(packagejson.version)
@@ -22,11 +23,28 @@ app.use('/', function (req, res) {
         null,
         R.DOM.head(
             null,
-            R.DOM.title(null, packagejson.description)
+            R.DOM.title(null, packagejson.description),
+            R.DOM.meta({
+                name: 'viewport',
+                content: 'width=device-width, initial-scale=1, user-scalable=no'
+            }),
+            R.DOM.link({
+                rel: 'stylesheet',
+                type: 'image/png',
+                href: '//api.mapbox.com/mapbox.js/v2.2.3/mapbox.css'
+            })
         ),
         R.DOM.body(
             null,
-            'zzz'
+            'zzz',
+            R.DOM.script({
+                src: '//api.mapbox.com/mapbox.js/v2.2.3/mapbox.js'
+            }),
+            R.DOM.script({
+                dangerouslySetInnerHTML: {
+                    __html: 'L.mapbox.accessToken = \'' + MAP_BOX_TOKEN + '\';'
+                }
+            })
             // R.DOM.script({}, 'window.__DEV__ = true;')
         )
     )));
