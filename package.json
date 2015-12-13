@@ -1,6 +1,6 @@
 {
   "name": "foursquare-heatmap",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "foursquare heatmap",
   "main": "index.js",
   "scripts": {
@@ -22,5 +22,9 @@
     "schema-check-mongo-wrapper": "^0.1.0",
     "to-csv": "^0.1.0",
     "turf": "^2.0.2"
+  },
+  "devDependencies": {
+    "webpack": "^1.12.9",
+    "webpack-dev-middleware": "^1.4.0"
   }
 }

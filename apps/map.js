@@ -9,6 +9,8 @@ var app = express();
 var R = require('react');
 var RDS = require('react-dom/server');
 var MAP_BOX_TOKEN = 'pk.eyJ1IjoiZGVsZnJyciIsImEiOiJjaWkyYWRmdncwMG1sdG9rZmozdGZ3bnFoIn0.ARqPIvrkYl2hIXauNK3PLA';
+var webpackMiddleware = require('webpack-dev-middleware');
+var webpack = require('webpack');
 
 program
     .version(packagejson.version)
@@ -17,7 +19,21 @@ program
     .description('Express app showing map');
 program.parse(process.argv);
 
-app.use('/', function (req, res) {
+app.use(webpackMiddleware(webpack({
+    entry: require.resolve('../components/map-page'),
+    output: {
+        path: '/',
+        filename: 'map-page.js'
+    },
+    externals: {
+        'react': 'React',
+        'mapbox': 'L'
+    }
+}), {
+    publicPath: '/components/'
+}));
+
+app.get('/', function (req, res) {
     res.type('html');
     res.send(RDS.renderToStaticMarkup(R.DOM.html(
         null,
@@ -44,8 +60,14 @@ app.use('/', function (req, res) {
                 dangerouslySetInnerHTML: {
                     __html: 'L.mapbox.accessToken = \'' + MAP_BOX_TOKEN + '\';'
                 }
+            }),
+            R.DOM.script({}, 'window.__DEV__ = true;'),
+            R.DOM.script({
+                src: 'https://fb.me/react-0.14.3.js'
+            }),
+            R.DOM.script({
+                src: '/components/map-page.js'
             })
-            // R.DOM.script({}, 'window.__DEV__ = true;')
         )
     )));
 });
