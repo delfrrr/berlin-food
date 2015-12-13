@@ -1,6 +1,6 @@
 {
   "name": "foursquare-heatmap",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "foursquare heatmap",
   "main": "index.js",
   "scripts": {
@@ -24,6 +24,7 @@
     "turf": "^2.0.2"
   },
   "devDependencies": {
+    "eslint": "^1.10.3",
     "webpack": "^1.12.9",
     "webpack-dev-middleware": "^1.4.0"
   }

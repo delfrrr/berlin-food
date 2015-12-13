@@ -27,6 +27,7 @@ app.use(webpackMiddleware(webpack({
     },
     externals: {
         'react': 'React',
+        'react-dom': 'ReactDOM',
         'mapbox': 'L'
     }
 }), {
@@ -52,7 +53,6 @@ app.get('/', function (req, res) {
         ),
         R.DOM.body(
             null,
-            'zzz',
             R.DOM.script({
                 src: '//api.mapbox.com/mapbox.js/v2.2.3/mapbox.js'
             }),
@@ -64,6 +64,9 @@ app.get('/', function (req, res) {
             R.DOM.script({}, 'window.__DEV__ = true;'),
             R.DOM.script({
                 src: 'https://fb.me/react-0.14.3.js'
+            }),
+            R.DOM.script({
+                src: 'https://fb.me/react-dom-0.14.3.js'
             }),
             R.DOM.script({
                 src: '/components/map-page.js'
