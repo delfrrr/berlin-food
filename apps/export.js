@@ -33,8 +33,8 @@ function outputGeojson(venues) {
             'geometry': {
                 'type': 'Point',
                 'coordinates': [
-                    venue.location.lat,
-                    venue.location.lng
+                    venue.location.lng,
+                    venue.location.lat
                 ]
             },
             'properties': {

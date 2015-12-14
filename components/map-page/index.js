@@ -3,7 +3,9 @@
  */
 
 var ReactDOM = require('react-dom');
-var map = require('./map');
+var map = require('../map');
+
+require('./index.less');
 
 //workaround for mounting component into body without dump elements
 var appHolder = document.createElement('div');

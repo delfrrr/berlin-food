@@ -23,7 +23,20 @@ app.use(webpackMiddleware(webpack({
     entry: require.resolve('../components/map-page'),
     output: {
         path: '/',
-        filename: 'map-page.js'
+        filename: 'map-page.js',
+        pathinfo: true
+    },
+    module: {
+        loaders: [
+            {
+                test: /\.json$/,
+                loader: "json"
+            },
+            {
+                test: /\.less$/,
+                loader: "style!css!less"
+            }
+        ]
     },
     externals: {
         'react': 'React',
