@@ -11,3 +11,47 @@
 ## start web server with map page
 
     $ node apps/map.js
+
+## Venue data example
+
+```js
+
+{ _id: 55d84cbd5a5da9f22415d0a2,
+  id: '4d30b1aca241f04d61efb627',
+  name: 'Samadhi Vegetarisches Restaurant',
+  contact: { phone: '+493022488850', formattedPhone: '+49 30 22488850' },
+  location:
+   { address: 'Wilhelmstraße 77',
+     crossStreet: 'Behrenstraße',
+     lat: 52.51465422529233,
+     lng: 13.381672311467842,
+     distance: 50,
+     postalCode: '10117',
+     cc: 'DE',
+     city: 'Berlin',
+     state: 'Berlin',
+     country: 'Deutschland',
+     formattedAddress:
+      [ 'Wilhelmstraße 77 (Behrenstraße)',
+        '10117 Berlin',
+        'Deutschland' ] },
+  categories:
+   [ { id: '4bf58dd8d48988d1d3941735',
+       name: 'Vegetarian / Vegan Restaurant',
+       pluralName: 'Vegetarian / Vegan Restaurants',
+       shortName: 'Vegetarian / Vegan',
+       icon: [Object],
+       primary: true } ],
+  verified: false,
+  stats: { checkinsCount: 347, usersCount: 287, tipCount: 16 },
+  url: 'http://www.samadhi-vegetarian.de',
+  price: { tier: 2, message: 'Moderate', currency: '€' },
+  rating: 7.3,
+  ratingColor: 'C5DE35',
+  ratingSignals: 41,
+  allowMenuUrlEdit: true,
+  hours: { status: 'Open until 11:00 PM', isOpen: true },
+  specials: { count: 0, items: [] },
+  photos: { count: 23, groups: [] },
+  hereNow: { count: 0, summary: 'Nobody here', groups: [] } }
+```

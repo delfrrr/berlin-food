@@ -1,6 +1,6 @@
 {
   "name": "foursquare-heatmap",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "foursquare heatmap",
   "main": "index.js",
   "scripts": {
@@ -17,11 +17,13 @@
     "bluebird": "^2.9.34",
     "commander": "^2.8.1",
     "lesshat": "^3.0.2",
+    "metaphone": "^1.0.1",
     "normalize.css": "^3.0.3",
     "react": "^0.14.3",
     "react-dom": "^0.14.3",
     "request": "^2.61.0",
     "schema-check-mongo-wrapper": "^0.1.0",
+    "soundex-code": "^0.1.2",
     "to-csv": "^0.1.0",
     "turf": "^2.0.2"
   },

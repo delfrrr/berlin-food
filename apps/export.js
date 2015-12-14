@@ -13,21 +13,25 @@ program
     .version(packagejson.version)
     .option('-f, --format [format]', 'Output format', /^(csv)|(geojson)$/, 'csv')
     .option('-r, --rating [number]', 'Minimal rating', 9)
+    .option('-d, --dry', 'Dry run')
     .description('export data');
 program.parse(process.argv);
 
 function outputCsv(venues) {
-    console.log(csv(venues.map(function (venue) {
+    var ouput = csv(venues.map(function (venue) {
         return {
             rating: venue.rating,
             lat: venue.location.lat,
             lng: venue.location.lng
         };
-    })));
+    }));
+    if (!program.dry) {
+        console.log(ouput);
+    }
 }
 
 function outputGeojson(venues) {
-    console.log(JSON.stringify(venues.map(function (venue) {
+    var ouput = JSON.stringify(venues.map(function (venue) {
         return {
             'type': 'Feature',
             'geometry': {
@@ -40,9 +44,14 @@ function outputGeojson(venues) {
             'properties': {
                 'title': venue.name,
                 'marker-color': '#' + venue.ratingColor,
+                'marker-symbol': String(Math.floor(venue.rating)),
+                'marker-size': 'small'
             }
          };
-    })));
+    }));
+    if (!program.dry) {
+        console.log(ouput);
+    }
 }
 collection.find({
     rating: {
