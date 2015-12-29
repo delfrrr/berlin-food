@@ -16,9 +16,14 @@ function list(s) {
 
 program
     .option('--bbox <items>', 'Venues bbox, lat, lng', list)
+    .option('--ways [string]', 'json with ways exported from OSM', String)
     .description('clusters venues');
 
 program.parse(process.argv);
+
+var nodes = require(process.cwd() + '/' + program.ways).elements;
+
+console.log('nodes', nodes.length);
 
 collection.find({
     $and: [
@@ -36,7 +41,7 @@ collection.find({
         }}
     ]
 }).toArray().then(function (venues) {
-    console.log(venues.length);
+    console.log('venues', venues.length);
 }).done(function () {
     process.exit(0);
 });
