@@ -55,3 +55,20 @@
   photos: { count: 23, groups: [] },
   hereNow: { count: 0, summary: 'Nobody here', groups: [] } }
 ```
+
+##Export Berlin streets
+
+Overpass api query
+
+```
+[out:json];
+way
+  [highway]
+  (52.5237,13.3886,52.5427,13.4354);
+(._;>;);
+out;
+```
+
+See
+ * http://overpass-turbo.eu/
+ * http://wiki.openstreetmap.org/wiki/Key:highway
