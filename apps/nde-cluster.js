@@ -2,6 +2,7 @@
  * @file cluster by network
  */
 
+var turf = require('turf');
 var program = require('commander');
 var Mongo = require('schema-check-mongo-wrapper');
 var connection = new Mongo.Connection('mongodb://localhost:27017/foursqare');
@@ -21,9 +22,55 @@ program
 
 program.parse(process.argv);
 
-var nodes = require(process.cwd() + '/' + program.ways).elements;
+var elements = require(process.cwd() + '/' + program.ways).elements;
 
-console.log('nodes', nodes.length);
+var nodesAndWays = elements.reduce(function (nodesAndWays, element) {
+    if (element.type === 'node') {
+        nodesAndWays.nodes.push(element);
+    } else if (element.type === 'way') {
+        nodesAndWays.ways.push(element);
+    }
+    return nodesAndWays;
+}, {
+    nodes: [],
+    ways: []
+});
+
+var nodesById = nodesAndWays.nodes.reduce(function (nodesById, node) {
+    nodesById[node.id] = node;
+    return nodesById;
+}, {});
+
+/**
+ * Osm json element
+ * @typedef {Object} OsmElem
+ * @prop {string} type
+ * @prop {string} id
+ */
+
+/**
+ * Osm node
+ * @typedef {OsmElem} Node
+ * @prop lat
+ * @prop lon
+ */
+
+/**
+ * Osm way
+ * @typedef {OsmElem} Way
+ * @prop {OsmElem.id[]} nodes
+ */
+
+/**
+ * @param {Way} way
+ * @return {LineString}
+ */
+function wayToPolyLine(way) {
+    return turf.linestring(way.nodes.map(function (nodeId) {
+        var node = nodesById[nodeId];
+        return [node.lon, node.lat];
+    }));
+}
 
 collection.find({
     $and: [
@@ -41,7 +88,7 @@ collection.find({
         }}
     ]
 }).toArray().then(function (venues) {
-    console.log('venues', venues.length);
+    console.log(wayToPolyLine(nodesAndWays.ways[0]));
 }).done(function () {
     process.exit(0);
 });

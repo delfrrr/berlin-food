@@ -72,3 +72,7 @@ out;
 See
  * http://overpass-turbo.eu/
  * http://wiki.openstreetmap.org/wiki/Key:highway
+
+## Run Mitte NDE clustering
+
+    $ node ./apps/nde-cluster.js --bbox 52.5237,13.3886,52.5427,13.4354 --ways ./geojson/mitte.json
