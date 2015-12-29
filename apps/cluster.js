@@ -1,5 +1,5 @@
 /**
- * @file cluster venues
+ * @file cluster venues by street names
  */
 
 /**
