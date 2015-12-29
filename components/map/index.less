@@ -4,4 +4,25 @@
 {
     position: absolute;
     .size(100%);
+    &__map-node
+    {
+        position: absolute;
+        .size(100%);
+    }
+    &__menu-item
+    {
+        padding: 0.5em 1em;
+        cursor: pointer;
+        &_selected
+        {
+            background-color: rgba(0,0,0,0.05);
+        }
+    }
+    &__menu
+    {
+        position: absolute;
+        background: white;
+        top: 10px;
+        right: 10px;
+    }
 }

@@ -1,6 +1,6 @@
 {
   "name": "foursquare-heatmap",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "description": "foursquare heatmap",
   "main": "index.js",
   "scripts": {
@@ -14,9 +14,12 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/delfrrr/foursquare-heatmap#readme",
   "dependencies": {
+    "backbone-model": "^1.0.9",
     "bluebird": "^2.9.34",
+    "classnames": "^2.2.1",
     "commander": "^2.8.1",
     "lesshat": "^3.0.2",
+    "lodash": "^3.10.1",
     "metaphone": "^1.0.1",
     "normalize.css": "^3.0.3",
     "react": "^0.14.3",

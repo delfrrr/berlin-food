@@ -7,8 +7,7 @@ var map = require('../map');
 
 require('./index.less');
 
-//workaround for mounting component into body without dump elements
-var appHolder = document.createElement('div');
+var appHolder = document.createElement('span');
 var body = document.getElementsByTagName('body')[0];
+body.appendChild(appHolder);
 ReactDOM.render(map(null), appHolder);
-body.appendChild(appHolder.firstChild);
