@@ -8,7 +8,10 @@ var L = require('mapbox');
 var allVenues = require('../../geojson/all-venues.json');
 var mapModel = require('./model');
 var classnames = require('classnames');
+var button = React.createFactory(require('elemental/lib/components/Button'));
+var buttonGroup = React.createFactory(require('elemental/lib/components/ButtonGroup'));
 
+require('elemental/less/elemental.less');
 require('./index.less');
 
 module.exports = React.createFactory(React.createClass({
@@ -44,25 +47,18 @@ module.exports = React.createFactory(React.createClass({
                 className: 'map__map-node',
                 ref: 'mapNode'
             }),
-            React.DOM.div(
+            buttonGroup(
                 {
-                    className: 'map__menu'
+                    className: 'map__layers-select'
                 },
-                React.DOM.div(
-                    {
-                        className: classnames('map__menu-item', {
-                            'map__menu-item_selected': mapModel.get('allVenues')
-                        }),
-                        onClick: this._onMenuClick.bind(this, 'allVenues')
-                    },
-                    'All venues'
-                ),
-                React.DOM.div(
-                    {
-                        className: 'map__menu-item'
-                    },
-                    'Streets'
-                )
+                button({
+                    className: classnames({
+                        'is-active': mapModel.get('allVenues')
+                    }),
+                    onClick: this._onMenuClick.bind(this, 'allVenues')
+                }, 'All venues'),
+                button({
+                }, 'Streets')
             )
         );
     }
