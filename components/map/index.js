@@ -15,7 +15,7 @@ module.exports = React.createFactory(React.createClass({
     componentDidMount: function () {
         var component = this;
         this._map = L.mapbox
-            .map(component.refs.mapNode, 'mapbox.light')
+            .map(component.refs.mapNode, 'mapbox.streets-basic')
             .setView([52.516667, 13.383333], 9);
         this._venuesLayer = L.mapbox.featureLayer(allVenues);
         mapModel.on('change', function () {
