@@ -29,8 +29,9 @@ module.exports = React.createFactory(React.createClass({
         }
         this._layers = {
             allVenues: L.mapbox.featureLayer(allVenues),
-            streets: L.mapbox.featureLayer(streetsData)
-        };
+            streets: this._createStreetLayer()
+        }
+
         this._map.on('moveend', this._onMapChange);
         this._map.on('zoomend', this._onMapChange);
         mapModel.on('change', function () {
@@ -47,6 +48,31 @@ module.exports = React.createFactory(React.createClass({
                 }
             });
         }));
+    },
+
+    /**
+     * @return {L.FeatureGroup}
+     */
+    _createStreetLayer: function () {
+        var layer = L.geoJson(streetsData, {
+            style: function () {
+                return L.mapbox.simplestyle.style.apply(L.mapbox.simplestyle, arguments);
+            },
+            pointToLayer: function () {
+                //TODO: we can show circles here
+                return L.mapbox.marker.style.apply(L.mapbox.marker, arguments);
+            }
+        });
+        var popup = new L.Popup({ autoPan: false, closeButton:false });
+        layer.on('mouseover', function (e) {
+            var props = e.layer.feature.properties;
+            if (props.way) {
+                popup.setLatLng(e.latlng);
+                popup.setContent(props.way.id + ' ' + props.way.tags.highway + ' ' + props.way.tags.name);
+                popup.openOn(this._map);
+            }
+        }, this);
+        return layer;
     },
 
     _onMapChange: function () {

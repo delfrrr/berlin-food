@@ -98,7 +98,9 @@ function getVenuePoint(venue) {
     var location = venue.location;
     return {
         'type': 'Feature',
-        'properties': {},
+        'properties': {
+            venue: venue
+        },
         'geometry': {
             'type': 'Point',
             'coordinates': [location.lng, location.lat]
@@ -168,7 +170,7 @@ collection.find({
         // });
         // var insertIndex = bearingsChange.indexOf(180);
         venuePoint.properties['marker-color'] = closestLine.properties.stroke;
-        venuePoint.properties.title = JSON.stringify(closestLine.properties.way.tags);
+        venuePoint.properties['way'] = closestLine.properties.way;
         features.push(venuePoint);
         if (program.filter) {
             features.push(closestLine);
