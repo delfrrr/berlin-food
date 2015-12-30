@@ -88,7 +88,7 @@ collection.find({
         }}
     ]
 }).toArray().then(function (venues) {
-    console.log(wayToPolyLine(nodesAndWays.ways[0]));
+    console.log(JSON.stringify(turf.featurecollection([wayToPolyLine(nodesAndWays.ways[0])])));
 }).done(function () {
     process.exit(0);
 });

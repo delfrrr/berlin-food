@@ -7,7 +7,8 @@ var Model = require('backbone-model').Model;
 
 var MapModel = Model.extend({
     defaults: {
-        allVenues: false
+        allVenues: false,
+        streets: false
     }
 });
 module.exports = new MapModel();

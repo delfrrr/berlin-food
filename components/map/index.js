@@ -6,6 +6,7 @@ var React = require('react');
 var _  = require('lodash');
 var L = require('mapbox');
 var allVenues = require('../../geojson/all-venues.json');
+var streetsData = require('../../geojson/streets.json');
 var mapModel = require('./model');
 var classnames = require('classnames');
 var button = React.createFactory(require('elemental/lib/components/Button'));
@@ -17,18 +18,42 @@ require('./index.less');
 module.exports = React.createFactory(React.createClass({
     componentDidMount: function () {
         var component = this;
-        this._map = L.mapbox
-            .map(component.refs.mapNode, 'mapbox.streets-basic')
-            .setView([52.516667, 13.383333], 9);
-        this._venuesLayer = L.mapbox.featureLayer(allVenues);
+        var zoom = Number(localStorage.getItem('zoom'));
+        var center = [
+            Number(localStorage.getItem('lat')),
+            Number(localStorage.getItem('lng'))
+        ];
+        this._map = L.mapbox.map(component.refs.mapNode, 'mapbox.streets-basic');
+        if (zoom) {
+            this._map.setView(center, zoom);
+        }
+        this._layers = {
+            allVenues: L.mapbox.featureLayer(allVenues),
+            streets: L.mapbox.featureLayer(streetsData)
+        };
+        this._map.on('moveend', this._onMapChange);
+        this._map.on('zoomend', this._onMapChange);
         mapModel.on('change', function () {
             //TODO: store model in state
             component.forceUpdate();
         });
-        mapModel.on('change:allVenues', _.debounce(function (e, value) {
-            var method = value ? 'addLayer' : 'removeLayer';
-            component._map.featureLayer[method](component._venuesLayer);
+        mapModel.on('change', _.debounce(function (e) {
+            var changed = e.changed;
+            _.forOwn(changed, function (value, key) {
+                var layer = component._layers[key];
+                var method = value ? 'addLayer' : 'removeLayer';
+                if (layer) {
+                    component._map.featureLayer[method](layer);
+                }
+            });
         }));
+    },
+
+    _onMapChange: function () {
+        var center = this._map.getCenter();
+        localStorage.setItem('zoom', this._map.getZoom());
+        localStorage.setItem('lat', center.lat);
+        localStorage.setItem('lng', center.lng);
     },
 
     /**
@@ -58,6 +83,10 @@ module.exports = React.createFactory(React.createClass({
                     onClick: this._onMenuClick.bind(this, 'allVenues')
                 }, 'All venues'),
                 button({
+                    className: classnames({
+                        'is-active': mapModel.get('streets')
+                    }),
+                    onClick: this._onMenuClick.bind(this, 'streets')
                 }, 'Streets')
             )
         );
