@@ -9,7 +9,7 @@ var program = require('commander');
 var Mongo = require('schema-check-mongo-wrapper');
 var connection = new Mongo.Connection('mongodb://localhost:27017/foursqare');
 var collection = connection.collection('venues');
-var chroma = require('chroma-js');
+// var chroma = require('chroma-js');
 /**
  * callback for program.option
  */
@@ -136,34 +136,11 @@ function getVenuePoint(venue) {
     };
 }
 
-collection.find({
-    $and: [
-        {'location.lat': {
-            $gte: program.bbox[0]
-        }},
-        {'location.lat': {
-            $lte: program.bbox[2]
-        }},
-        {'location.lng': {
-            $gte: program.bbox[1]
-        }},
-        {'location.lng': {
-            $lte: program.bbox[3]
-        }}
-    ]
-}).toArray().then(function (venues) {
-    var colors = chroma
-        .cubehelix()
-        .scale()
-        .correctLightness()
-        .colors(100);
-    var lines = nodesAndWays.ways.map(function (way) {
-        return wayToline(way, {
-            stroke: colors[Math.floor(Math.random() * 100)]
-        });
-    });
-    var features = [].concat(lines);
-
+/**
+ * @param {LineString[]} lines
+ * @param {Venue[]} venues
+ */
+function appendVenuesToNodePoints(lines, venues) {
     venues.forEach(function (venue) {
         if (program.filter && !venue.name.match(program.filter)) {
             return;
@@ -203,9 +180,14 @@ collection.find({
         closestPointOnLine.properties.way = way;
         closestPointOnLine.properties.venue = venue;
     });
-    //injects venue points into ways
-    var venuePoints = [];
-    var wayPoints = nodesAndWays.ways.map(function (way) {
+}
+
+/**
+ * @param {Points} venuePoints will be modified
+ * @returns  {Object.<Way.id, Points[]>}
+ */
+function getExtendedWayPoints(venuePoints) {
+    return nodesAndWays.ways.reduce(function (wayPoints, way) {
         var points = [];
         waysNodePoints[way.id].forEach(function (nodePoint) {
             //points for this way
@@ -216,7 +198,7 @@ collection.find({
             nodeVenuePoints.sort(function (p1, p2) {
                 var d1 = turf.distance(p1, nodePoint);
                 var d2 = turf.distance(p2, nodePoint);
-                return d1 - d2;
+                return  d1 - d2;
             });
             points.push(nodePoint);
             if (nodeVenuePoints.length) {
@@ -224,8 +206,61 @@ collection.find({
                 venuePoints.push.apply(venuePoints, nodeVenuePoints);
             }
         });
+        wayPoints[way.id] = points;
+        return wayPoints;
+    }, {})
+}
+
+/**
+ * @param  {Object.<Way.id, Points[]>} wayPoints with venue points
+ * @return {LineString[]}
+ */
+function getExtendedLines(wayPoints) {
+    return nodesAndWays.ways.map(function (way) {
+        var geometries = wayPoints[way.id].map(function (point) {
+            return point.geometry.coordinates;
+        });
+        return turf.linestring(geometries, {
+            way: way
+        });
     });
-    features = features.concat(venuePoints, nodePointsAr);
+}
+
+collection.find({
+    $and: [
+        {'location.lat': {
+            $gte: program.bbox[0]
+        }},
+        {'location.lat': {
+            $lte: program.bbox[2]
+        }},
+        {'location.lng': {
+            $gte: program.bbox[1]
+        }},
+        {'location.lng': {
+            $lte: program.bbox[3]
+        }}
+    ]
+}).toArray().then(function (venues) {
+    var lines = nodesAndWays.ways.map(function (way) {
+        return wayToline(way, {});
+    });
+    appendVenuesToNodePoints(lines, venues)
+
+    /**
+     * @type {Point[]} line points nearest to venue
+     */
+    var venuePoints = [];
+
+    /**
+     * @type {Object.<Way.id, Points[]>} way nodes with venue points
+     */
+    var wayPoints = getExtendedWayPoints(venuePoints);
+
+    var extendedLines = getExtendedLines(wayPoints);
+
+    var features = [].concat(venuePoints, nodePointsAr, extendedLines);
+
     if (!program.dry) {
         console.log(JSON.stringify(turf.featurecollection(features)));
     }
