@@ -61,12 +61,10 @@ module.exports = React.createFactory(React.createClass({
                 return L.mapbox.simplestyle.style.apply(L.mapbox.simplestyle, arguments);
             },
             pointToLayer: function (feature, latLng) {
-                var radius = 2;
-                if (feature.properties.venue) {
-                    radius = 10;
-                }
+                var radius = feature.properties.density * 10;
                 return L.circleMarker(latLng, {
-                    radius: radius
+                    radius: radius,
+                    stroke: false
                 });
             }
         });

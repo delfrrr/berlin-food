@@ -73,12 +73,15 @@ var waysNodePoints = nodesAndWays.ways.reduce(function (waysNodePoints, way) {
         if (!point) {
             point = turf.point([node.lon, node.lat], {
                node: node,
-               inject: []
+               inject: [],
+               ways: [way.id],
+               density: 0
             });
             nodePoints[id] = point;
             nodePointsAr.push(point);
+        } else {
+            point.properties.ways.push(way.id)
         }
-
         return point;
     });
     waysNodePoints[way.id] = points;
@@ -179,7 +182,26 @@ function appendVenuesToNodePoints(lines, venues) {
         waysNodePoints[way.id][insertIndex].properties.inject.push(closestPointOnLine);
         closestPointOnLine.properties.way = way;
         closestPointOnLine.properties.venue = venue;
+        closestPointOnLine.properties.density = 1;
     });
+}
+
+/**
+ * @param {Point} from
+ * @param {Point} to
+ * @return {Number} dencity
+ */
+function getDensity(from, to) {
+    if (from.properties.density) {
+        var distance = turf.distance(from, to) * 1000;
+        var density = from.properties.density - distance/50;
+        if (density < 0) {
+            density = 0;
+        }
+        return density;
+    } else {
+        return 0;
+    }
 }
 
 /**
@@ -226,6 +248,32 @@ function getExtendedLines(wayPoints) {
     });
 }
 
+/**
+ * @param {Object.<Way.id, Points[]>} wayPoints
+ */
+function poluteDencity(wayPoints) {
+    var changed = true;
+    while (changed) {
+        changed = false;
+        nodesAndWays.ways.map(function (way) {
+            wayPoints[way.id].forEach(function (point, i, points) {
+                var next = points[i+1];
+                if (next) {
+                    var fromNext = getDensity(next, point);
+                    var toNext = getDensity(point, next);
+                    if (fromNext > point.properties.density) {
+                        point.properties.density = fromNext;
+                        changed = true;
+                    } else if (toNext > next.properties.density) {
+                        next.properties.density = toNext;
+                        changed = true;
+                    }
+                }
+            });
+        });
+    }
+}
+
 collection.find({
     $and: [
         {'location.lat': {
@@ -258,6 +306,8 @@ collection.find({
     var wayPoints = getExtendedWayPoints(venuePoints);
 
     var extendedLines = getExtendedLines(wayPoints);
+
+    poluteDencity(wayPoints);
 
     var features = [].concat(venuePoints, nodePointsAr, extendedLines);
 
