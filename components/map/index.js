@@ -2,6 +2,8 @@
  * @module components/map
  */
 
+'strict mode';
+
 var React = require('react');
 var _  = require('lodash');
 var L = require('mapbox');
@@ -58,9 +60,14 @@ module.exports = React.createFactory(React.createClass({
             style: function () {
                 return L.mapbox.simplestyle.style.apply(L.mapbox.simplestyle, arguments);
             },
-            pointToLayer: function () {
-                //TODO: we can show circles here
-                return L.mapbox.marker.style.apply(L.mapbox.marker, arguments);
+            pointToLayer: function (feature, latLng) {
+                var radius = 2;
+                if (feature.properties.venue) {
+                    radius = 10;
+                }
+                return L.circleMarker(latLng, {
+                    radius: radius
+                });
             }
         });
         var popup = new L.Popup({ autoPan: false, closeButton:false });

@@ -2,13 +2,14 @@
  * @file cluster by network
  */
 
+'strict mode';
+
 var turf = require('turf');
 var program = require('commander');
 var Mongo = require('schema-check-mongo-wrapper');
 var connection = new Mongo.Connection('mongodb://localhost:27017/foursqare');
 var collection = connection.collection('venues');
 var chroma = require('chroma-js');
-
 /**
  * callback for program.option
  */
@@ -20,6 +21,7 @@ program
     .option('--bbox <items>', 'Venues bbox, lat, lng', list)
     .option('--ways [string]', 'json with ways exported from OSM', String)
     .option('--filter [string]', 'filter by venue name', null)
+    .option('--dry [boolean]', 'do not output json', false)
     .description('clusters venues');
 
 program.parse(process.argv);
@@ -57,6 +59,32 @@ var nodesAndWays = elements.reduce(function (nodesAndWays, element) {
 //     return wbd;
 // }, {});
 
+var nodePoints = {};
+
+var nodePointsAr = [];
+
+/**
+ * @type {Object.<Way.id, Point[]>}
+ */
+var waysNodePoints = nodesAndWays.ways.reduce(function (waysNodePoints, way) {
+    var points = way.nodes.map(function (id) {
+        var node = nodesById[id];
+        var point = nodePoints[id];
+        if (!point) {
+            point = turf.point([node.lon, node.lat], {
+               node: node,
+               inject: []
+            });
+            nodePoints[id] = point;
+            nodePointsAr.push(point);
+        }
+
+        return point;
+    });
+    waysNodePoints[way.id] = points;
+    return waysNodePoints;
+}, {});
+
 /**
  * Osm json element
  * @typedef {Object} OsmElem
@@ -82,7 +110,7 @@ var nodesAndWays = elements.reduce(function (nodesAndWays, element) {
  * @param {Object} props
  * @return {LineString}
  */
-function wayToPolyLine(way, props) {
+function wayToline(way, props) {
     props.way = way;
     return turf.linestring(way.nodes.map(function (nodeId) {
         var node = nodesById[nodeId];
@@ -129,54 +157,78 @@ collection.find({
         .scale()
         .correctLightness()
         .colors(100);
-    var polylines = nodesAndWays.ways.map(function (way) {
-        return wayToPolyLine(way, {
+    var lines = nodesAndWays.ways.map(function (way) {
+        return wayToline(way, {
             stroke: colors[Math.floor(Math.random() * 100)]
         });
     });
-    var features = [];
-    if (!program.filter) {
-        features = [].concat(polylines);
-    }
+    var features = [].concat(lines);
 
     venues.forEach(function (venue) {
         if (program.filter && !venue.name.match(program.filter)) {
             return;
         }
-        var minDistance = +Infinity;
         var venuePoint = getVenuePoint(venue);
+        var minDistance = +Infinity;
         var closestPointOnLine = null;
         var closestLine = null;
-        polylines.forEach(function (polyline) {
-            var pointOnLine = turf.pointOnLine(polyline, venuePoint);
+        lines.forEach(function (line) {
+            var pointOnLine = turf.pointOnLine(line, venuePoint);
             var distance = turf.distance(venuePoint, pointOnLine);
+            //TODO: to find closest named street we can use buildings data
             if (distance < minDistance) {
                 minDistance = distance;
-                //TODO:building can have few edges
-                closestLine = polyline;
+                closestLine = line;
                 closestPointOnLine = pointOnLine;
             }
         });
-        //TODO: elaborate insertIndex
-        // var bearingsChange = closestLine.geometry.coordinates.map(function (coordinates) {
-        //     return turf.point(coordinates);
-        // }).map(function (point) {
-        //     return turf.bearing(point, closestPointOnLine);
-        // }).map(function (angle, k, bearing) {
-        //     if (k < bearing.length - 1) {
-        //         var nextAngle = bearing[k+1];
-        //         return Math.round(Math.abs(((360 + angle)%360) - ((360 + nextAngle)%360)));
-        //     }
-        // });
-        // var insertIndex = bearingsChange.indexOf(180);
-        venuePoint.properties['marker-color'] = closestLine.properties.stroke;
-        venuePoint.properties['way'] = closestLine.properties.way;
-        features.push(venuePoint);
-        if (program.filter) {
-            features.push(closestLine);
+        var way = closestLine.properties.way;
+        var bearings = closestLine.geometry.coordinates.map(function (coordinates) {
+            return turf.point(coordinates);
+        }).map(function (point) {
+            return turf.bearing(point, closestPointOnLine);
+        });
+        //case of closest point === point on line
+        var insertIndex = bearings.indexOf(0);
+        if (insertIndex < 0) {
+            var bearingsChange = bearings.map(function (angle, k, bearing) {
+                if (k < bearing.length - 1) {
+                    var nextAngle = bearing[k+1];
+                    return Math.round(Math.abs(((360 + angle)%360) - ((360 + nextAngle)%360)));
+                }
+            });
+            insertIndex = bearingsChange.indexOf(180);
         }
+        waysNodePoints[way.id][insertIndex].properties.inject.push(closestPointOnLine);
+        closestPointOnLine.properties.way = way;
+        closestPointOnLine.properties.venue = venue;
     });
-    console.log(JSON.stringify(turf.featurecollection(features)));
+    //injects venue points into ways
+    var venuePoints = [];
+    var wayPoints = nodesAndWays.ways.map(function (way) {
+        var points = [];
+        waysNodePoints[way.id].forEach(function (nodePoint) {
+            //points for this way
+            var nodeVenuePoints = nodePoint.properties.inject.filter(function (venuePoint) {
+                return venuePoint.properties.way.id === way.id;
+            });
+            //sort by distance
+            nodeVenuePoints.sort(function (p1, p2) {
+                var d1 = turf.distance(p1, nodePoint);
+                var d2 = turf.distance(p2, nodePoint);
+                return d1 - d2;
+            });
+            points.push(nodePoint);
+            if (nodeVenuePoints.length) {
+                points.push.apply(points, nodeVenuePoints);
+                venuePoints.push.apply(venuePoints, nodeVenuePoints);
+            }
+        });
+    });
+    features = features.concat(venuePoints, nodePointsAr);
+    if (!program.dry) {
+        console.log(JSON.stringify(turf.featurecollection(features)));
+    }
 }).done(function () {
     process.exit(0);
 });
