@@ -1,6 +1,6 @@
 {
   "name": "foursquare-heatmap",
-  "version": "1.0.27",
+  "version": "1.0.28",
   "description": "foursquare heatmap",
   "main": "index.js",
   "scripts": {
@@ -29,6 +29,7 @@
     "request": "^2.61.0",
     "schema-check-mongo-wrapper": "^0.1.0",
     "soundex-code": "^0.1.2",
+    "sphere-knn": "^1.2.1",
     "to-csv": "^0.1.0",
     "turf": "^2.0.2"
   },

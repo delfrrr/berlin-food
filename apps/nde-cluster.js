@@ -9,6 +9,7 @@ var program = require('commander');
 var Mongo = require('schema-check-mongo-wrapper');
 var connection = new Mongo.Connection('mongodb://localhost:27017/foursqare');
 var collection = connection.collection('venues');
+var sphereKnn = require('sphere-knn');
 // var chroma = require('chroma-js');
 /**
  * callback for program.option
@@ -25,6 +26,10 @@ program
     .description('clusters venues');
 
 program.parse(process.argv);
+
+if (program.dry) {
+    console.time('total');
+}
 
 var elements = require(process.cwd() + '/' + program.ways).elements;
 
@@ -88,6 +93,15 @@ var waysNodePoints = nodesAndWays.ways.reduce(function (waysNodePoints, way) {
     return waysNodePoints;
 }, {});
 
+var lookup = sphereKnn(nodePointsAr.map(function (point) {
+    var coordinates = point.geometry.coordinates;
+    return {
+        lon: coordinates[0],
+        lat: coordinates[1],
+        ways: point.properties.ways
+    }
+}));
+
 /**
  * Osm json element
  * @typedef {Object} OsmElem
@@ -140,10 +154,10 @@ function getVenuePoint(venue) {
 }
 
 /**
- * @param {LineString[]} lines
+ * @param {Object.<Way.id, LineString>} linesById
  * @param {Venue[]} venues
  */
-function appendVenuesToNodePoints(lines, venues) {
+function appendVenuesToNodePoints(linesById, venues) {
     venues.forEach(function (venue) {
         if (program.filter && !venue.name.match(program.filter)) {
             return;
@@ -152,7 +166,16 @@ function appendVenuesToNodePoints(lines, venues) {
         var minDistance = +Infinity;
         var closestPointOnLine = null;
         var closestLine = null;
-        lines.forEach(function (line) {
+        //TODO: not really fair to look for closest not, not for closest point on line
+        var lookupPoints = lookup(
+            venuePoint.geometry.coordinates[1],
+            venuePoint.geometry.coordinates[0],
+            1
+        );
+        var lookupLines = lookupPoints[0].ways.map(function (wayId) {
+            return linesById[wayId];
+        });
+        lookupLines.forEach(function (line) {
             var pointOnLine = turf.pointOnLine(line, venuePoint);
             var distance = turf.distance(venuePoint, pointOnLine);
             //TODO: to find closest named street we can use buildings data
@@ -290,10 +313,17 @@ collection.find({
         }}
     ]
 }).toArray().then(function (venues) {
-    var lines = nodesAndWays.ways.map(function (way) {
-        return wayToline(way, {});
-    });
-    appendVenuesToNodePoints(lines, venues)
+    var linesById = nodesAndWays.ways.reduce(function (linesById, way) {
+        linesById[way.id] = wayToline(way, {});
+        return linesById;
+    }, {});
+    if (program.dry) {
+        console.time('appendVenuesToNodePoints');
+    }
+    appendVenuesToNodePoints(linesById, venues)
+    if (program.dry) {
+        console.timeEnd('appendVenuesToNodePoints');
+    }
 
     /**
      * @type {Point[]} line points nearest to venue
@@ -310,6 +340,10 @@ collection.find({
     poluteDencity(wayPoints);
 
     var features = [].concat(venuePoints, nodePointsAr, extendedLines);
+
+    if (program.dry) {
+        console.timeEnd('total');
+    }
 
     if (!program.dry) {
         console.log(JSON.stringify(turf.featurecollection(features)));
