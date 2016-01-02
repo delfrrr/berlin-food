@@ -56,7 +56,7 @@ module.exports = React.createFactory(React.createClass({
      * @return {L.FeatureGroup}
      */
     _createStreetLayer: function () {
-        var colors = _.shuffle(chroma.cubehelix().lightness([0.3, 0.7]).scale().colors(200));
+        var colors = chroma.cubehelix().lightness([0.3, 0.7]).scale().colors(20);
         var layer = L.mapbox.featureLayer('/geojson/streets.json', {
             style: function (feature) {
                 if (feature.geometry.type === 'Point') {

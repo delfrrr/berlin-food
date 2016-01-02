@@ -321,7 +321,9 @@ function cluster(wayPoints) {
      * @type {cid[]}
      */
     var clusterIds = [];
-
+    if (program.dry) {
+        console.time('find groups by streets');
+    }
     //find groups by streets
     Object.keys(wayPoints).forEach(function (wayId) {
         var wayPointsAr = wayPoints[wayId];
@@ -349,28 +351,38 @@ function cluster(wayPoints) {
         });
     });
 
-    var clusterGroups = clusterIds.map(function (clusterId) {
+    if (program.dry) {
+        console.timeEnd('find groups by streets');
+    }
+
+    var uncheckedGroups = clusterIds.map(function (clusterId) {
         return [clusterId];
     }).concat(clusterLinks);
 
-    var i = 0;
+    var checkedGroups = [];
 
+    // var i = 0;
+
+    if (program.dry) {
+        console.time('group clusters');
+    }
     //group clusters
-    while (i < clusterGroups.length) {
-        var g = clusterGroups.shift();
-        if (clusterGroups.some(function (cg, k) {
+    while (uncheckedGroups.length) {
+        var g = uncheckedGroups.pop();
+        if (!uncheckedGroups.some(function (cg, k) {
             if (cg.some(function (cid) {
                 return g.indexOf(cid) >= 0;
             })) {
-                clusterGroups[k] = _.uniq([].concat(cg, g));
+                uncheckedGroups[k] = _.uniq([].concat(cg, g));
                 return true;
             }
         })) {
-            i = 0;
-        } else {
-            clusterGroups.push(g);
-            i++;
+            checkedGroups.push(g);
         }
+    }
+    if (program.dry) {
+        console.timeEnd('group clusters');
+        console.log('clusterGroups', checkedGroups.length);
     }
 
     //assign group ids
@@ -378,7 +390,7 @@ function cluster(wayPoints) {
         var wayPointsAr = wayPoints[wayId];
         wayPointsAr.forEach(function (point) {
             if (point.properties.clusterId) {
-                clusterGroups.some(function (g, gid) {
+                checkedGroups.some(function (g, gid) {
                     if (g.indexOf(point.properties.clusterId) >= 0) {
                         point.properties.groupId = gid;
                         return true;
