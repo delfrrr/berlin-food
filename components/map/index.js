@@ -13,6 +13,7 @@ var mapModel = require('./model');
 var classnames = require('classnames');
 var button = React.createFactory(require('elemental/lib/components/Button'));
 var buttonGroup = React.createFactory(require('elemental/lib/components/ButtonGroup'));
+var chroma = require('chroma-js');
 
 require('elemental/less/elemental.less');
 require('./index.less');
@@ -56,25 +57,40 @@ module.exports = React.createFactory(React.createClass({
      * @return {L.FeatureGroup}
      */
     _createStreetLayer: function () {
+        var colors = _.shuffle(chroma.cubehelix().lightness([0.3, 0.7]).scale().colors(200));
         var layer = L.geoJson(streetsData, {
-            style: function () {
-                return L.mapbox.simplestyle.style.apply(L.mapbox.simplestyle, arguments);
+            style: function (feature) {
+                if (feature.geometry.type === 'Point') {
+                    var fillColor = '#000000';
+                    if (feature.properties.groupId) {
+                        fillColor = colors[feature.properties.groupId%colors.length]
+                    }
+                    return {
+                        stroke: false,
+                        fill: true,
+                        fillColor: fillColor,
+                        color: fillColor,
+                        fillOpacity: 1
+                    }
+                } else {
+                    return L.mapbox.simplestyle.style.apply(L.mapbox.simplestyle, arguments);
+                }
             },
             pointToLayer: function (feature, latLng) {
                 var radius = feature.properties.density * 10;
                 return L.circleMarker(latLng, {
-                    radius: radius,
-                    stroke: false
+                    radius: radius
                 });
             }
         });
-        var popup = new L.Popup({ autoPan: false, closeButton:false });
         layer.on('mouseover', function (e) {
             var props = e.layer.feature.properties;
-            if (props.way) {
-                popup.setLatLng(e.latlng);
-                popup.setContent(props.way.id + ' ' + props.way.tags.highway + ' ' + props.way.tags.name);
-                popup.openOn(this._map);
+            var way = props.way;
+            if (way) {
+                console.log(way.tags.name || way.tags.highway);
+            }
+            if (props.hasOwnProperty('groupId')) {
+                console.log('groupId', props.groupId);
             }
         }, this);
         return layer;

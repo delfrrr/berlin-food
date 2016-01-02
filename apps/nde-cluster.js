@@ -10,6 +10,9 @@ var Mongo = require('schema-check-mongo-wrapper');
 var connection = new Mongo.Connection('mongodb://localhost:27017/foursqare');
 var collection = connection.collection('venues');
 var sphereKnn = require('sphere-knn');
+var _ = require('lodash');
+var DISTANCE_TOLERANCE = 25; //meters
+
 // var chroma = require('chroma-js');
 /**
  * callback for program.option
@@ -204,6 +207,7 @@ function appendVenuesToNodePoints(linesById, venues) {
         }
         waysNodePoints[way.id][insertIndex].properties.inject.push(closestPointOnLine);
         closestPointOnLine.properties.way = way;
+        closestPointOnLine.properties.ways = [way.id];
         closestPointOnLine.properties.venue = venue;
         closestPointOnLine.properties.density = 1;
     });
@@ -212,12 +216,12 @@ function appendVenuesToNodePoints(linesById, venues) {
 /**
  * @param {Point} from
  * @param {Point} to
- * @return {Number} dencity
+ * @return {Number} density
  */
 function getDensity(from, to) {
     if (from.properties.density) {
         var distance = turf.distance(from, to) * 1000;
-        var density = from.properties.density - distance/50;
+        var density = from.properties.density - distance / DISTANCE_TOLERANCE;
         if (density < 0) {
             density = 0;
         }
@@ -225,6 +229,12 @@ function getDensity(from, to) {
     } else {
         return 0;
     }
+}
+
+function pointsConected(p1, p2) {
+    var density = Math.max(p1.properties.density + p2.properties.density);
+    var distance = turf.distance(p1, p2) * 1000;
+    return density * DISTANCE_TOLERANCE >= distance;
 }
 
 /**
@@ -274,7 +284,7 @@ function getExtendedLines(wayPoints) {
 /**
  * @param {Object.<Way.id, Points[]>} wayPoints
  */
-function poluteDencity(wayPoints) {
+function propagateDensity(wayPoints) {
     var changed = true;
     while (changed) {
         changed = false;
@@ -295,6 +305,88 @@ function poluteDencity(wayPoints) {
             });
         });
     }
+}
+
+/**
+ * @param {Object.<Way.id, Points[]>} wayPoints
+ */
+function cluster(wayPoints) {
+    var lastClusterId = 0;
+    /**
+     * @type {Array.<[cid, cid]>}
+     */
+    var clusterLinks = [];
+
+    /**
+     * @type {cid[]}
+     */
+    var clusterIds = [];
+
+    //find groups by streets
+    Object.keys(wayPoints).forEach(function (wayId) {
+        var wayPointsAr = wayPoints[wayId];
+        wayPointsAr.forEach(function (point, i) {
+            if (point.properties.density > 0) {
+                var prevPoint = i && wayPointsAr[i - 1];
+                if (
+                    prevPoint &&
+                    prevPoint.properties.clusterId &&
+                    pointsConected(point, prevPoint)
+                ) {
+                    if (point.properties.clusterId) {
+                        clusterLinks.push([
+                            point.properties.clusterId,
+                            prevPoint.properties.clusterId
+                        ])
+                    } else {
+                        point.properties.clusterId = prevPoint.properties.clusterId;
+                    }
+                } else if (!point.properties.clusterId) {
+                    point.properties.clusterId = ++lastClusterId;
+                    clusterIds.push(point.properties.clusterId);
+                }
+            }
+        });
+    });
+
+    var clusterGroups = clusterIds.map(function (clusterId) {
+        return [clusterId];
+    }).concat(clusterLinks);
+
+    var i = 0;
+
+    //group clusters
+    while (i < clusterGroups.length) {
+        var g = clusterGroups.shift();
+        if (clusterGroups.some(function (cg, k) {
+            if (cg.some(function (cid) {
+                return g.indexOf(cid) >= 0;
+            })) {
+                clusterGroups[k] = _.uniq([].concat(cg, g));
+                return true;
+            }
+        })) {
+            i = 0;
+        } else {
+            clusterGroups.push(g);
+            i++;
+        }
+    }
+
+    //assign group ids
+    Object.keys(wayPoints).forEach(function (wayId) {
+        var wayPointsAr = wayPoints[wayId];
+        wayPointsAr.forEach(function (point) {
+            if (point.properties.clusterId) {
+                clusterGroups.some(function (g, gid) {
+                    if (g.indexOf(point.properties.clusterId) >= 0) {
+                        point.properties.groupId = gid;
+                        return true;
+                    }
+                });
+            }
+        });
+    });
 }
 
 collection.find({
@@ -337,13 +429,23 @@ collection.find({
 
     var extendedLines = getExtendedLines(wayPoints);
 
-    poluteDencity(wayPoints);
+    propagateDensity(wayPoints);
 
-    var features = [].concat(venuePoints, nodePointsAr, extendedLines);
+    if (program.dry) {
+        console.time('cluster');
+    }
+
+    if (program.dry) {
+        console.timeEnd('cluster');
+    }
+
+    cluster(wayPoints);
 
     if (program.dry) {
         console.timeEnd('total');
     }
+
+    var features = [].concat(extendedLines, venuePoints, nodePointsAr);
 
     if (!program.dry) {
         console.log(JSON.stringify(turf.featurecollection(features)));
