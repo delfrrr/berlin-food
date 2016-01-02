@@ -36,6 +36,9 @@ if (program.dry) {
 
 var elements = require(process.cwd() + '/' + program.ways).elements;
 
+if (program.dry) {
+    console.time('nodesAndWays');
+}
 /**
  * @type {nodes: Node[], ways: Way[]}
  */
@@ -50,6 +53,13 @@ var nodesAndWays = elements.reduce(function (nodesAndWays, element) {
     nodes: [],
     ways: []
 });
+if (program.dry) {
+    console.timeEnd('nodesAndWays');
+}
+
+if (program.dry) {
+    console.time('nodesById');
+}
 
 /**
  * @type {Object.<Node.id, Node>}
@@ -58,6 +68,10 @@ var nodesAndWays = elements.reduce(function (nodesAndWays, element) {
      nodesById[node.id] = node;
      return nodesById;
  }, {});
+
+if (program.dry) {
+    console.timeEnd('nodesById');
+}
 
  /**
   * @type {Object.<Way.id, Way>}
@@ -361,14 +375,20 @@ function cluster(wayPoints) {
 
     var checkedGroups = [];
 
+    /**
+     * @type {Object.<cid, gid>}
+     */
+    var clusterToGroup = {};
+
     // var i = 0;
 
     if (program.dry) {
         console.time('group clusters');
     }
     //group clusters
+    var g;
     while (uncheckedGroups.length) {
-        var g = uncheckedGroups.pop();
+        g = uncheckedGroups.pop();
         if (!uncheckedGroups.some(function (cg, k) {
             if (cg.some(function (cid) {
                 return g.indexOf(cid) >= 0;
@@ -377,7 +397,11 @@ function cluster(wayPoints) {
                 return true;
             }
         })) {
+            g.forEach(function (cid) {
+                clusterToGroup[cid] = checkedGroups.length;
+            });
             checkedGroups.push(g);
+
         }
     }
     if (program.dry) {
@@ -385,20 +409,21 @@ function cluster(wayPoints) {
         console.log('clusterGroups', checkedGroups.length);
     }
 
+    if (program.dry) {
+        console.time('assign group ids');
+    }
     //assign group ids
     Object.keys(wayPoints).forEach(function (wayId) {
         var wayPointsAr = wayPoints[wayId];
         wayPointsAr.forEach(function (point) {
             if (point.properties.clusterId) {
-                checkedGroups.some(function (g, gid) {
-                    if (g.indexOf(point.properties.clusterId) >= 0) {
-                        point.properties.groupId = gid;
-                        return true;
-                    }
-                });
+                point.properties.groupId = clusterToGroup[point.properties.clusterId];
             }
         });
     });
+    if (program.dry) {
+        console.timeEnd('assign group ids');
+    }
 }
 
 collection.find({
