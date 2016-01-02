@@ -8,7 +8,6 @@ var React = require('react');
 var _  = require('lodash');
 var L = require('mapbox');
 var allVenues = require('../../geojson/all-venues.json');
-var streetsData = require('../../geojson/streets.json');
 var mapModel = require('./model');
 var classnames = require('classnames');
 var button = React.createFactory(require('elemental/lib/components/Button'));
@@ -58,7 +57,7 @@ module.exports = React.createFactory(React.createClass({
      */
     _createStreetLayer: function () {
         var colors = _.shuffle(chroma.cubehelix().lightness([0.3, 0.7]).scale().colors(200));
-        var layer = L.geoJson(streetsData, {
+        var layer = L.mapbox.featureLayer('/geojson/streets.json', {
             style: function (feature) {
                 if (feature.geometry.type === 'Point') {
                     var fillColor = '#000000';
@@ -77,9 +76,8 @@ module.exports = React.createFactory(React.createClass({
                 }
             },
             pointToLayer: function (feature, latLng) {
-                var radius = feature.properties.density * 10;
                 return L.circleMarker(latLng, {
-                    radius: radius
+                    radius: feature.properties.venue.rating || 3
                 });
             }
         });

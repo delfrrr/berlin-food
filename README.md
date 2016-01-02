@@ -60,11 +60,24 @@
 
 Overpass api query
 
+Mitte:
+
 ```
 [out:json];
 way
   [highway]
   (52.5237,13.3886,52.5427,13.4354);
+(._;>;);
+out;
+```
+
+Berlin:
+
+```
+[out:json];
+way
+  [highway]
+  (52.38029861450195,13.247178093419942,52.65529274940338,13.519765);
 (._;>;);
 out;
 ```
@@ -76,3 +89,7 @@ See
 ## Run Mitte NDE clustering
 
     $ node ./apps/nde-cluster.js --bbox 52.5237,13.3886,52.5427,13.4354 --ways ./geojson/mitte.json
+
+## Run Berlin NDE clustering
+
+    $ node ./apps/nde-cluster.js --bbox 52.38029861450195,13.247178093419942,52.65529274940338,13.519765 --ways ./geojson/berlin.json > geojson/streets.json 

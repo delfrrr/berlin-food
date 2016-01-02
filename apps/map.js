@@ -11,6 +11,7 @@ var RDS = require('react-dom/server');
 var MAP_BOX_TOKEN = 'pk.eyJ1IjoiZGVsZnJyciIsImEiOiJjaWkyYWRmdncwMG1sdG9rZmozdGZ3bnFoIn0.ARqPIvrkYl2hIXauNK3PLA';
 var webpackMiddleware = require('webpack-dev-middleware');
 var webpack = require('webpack');
+var path = require('path');
 
 program
     .version(packagejson.version)
@@ -23,7 +24,7 @@ app.use(webpackMiddleware(webpack({
     entry: require.resolve('../components/map-page'),
     output: {
         path: '/',
-        filename: 'map-page.js',
+        filename: '/components/map-page.js',
         pathinfo: true
     },
     module: {
@@ -44,7 +45,7 @@ app.use(webpackMiddleware(webpack({
         'mapbox': 'L'
     }
 }), {
-    publicPath: '/components/'
+    publicPath: '/'
 }));
 
 app.get('/', function (req, res) {
@@ -87,6 +88,9 @@ app.get('/', function (req, res) {
         )
     )));
 });
+
+app.use('/geojson', express.static(path.resolve(__dirname + '/../geojson')));
+
 
 app.listen(program.port, program.socket, function () {
     console.log('map started at %s:%j', program.socket, program.port);

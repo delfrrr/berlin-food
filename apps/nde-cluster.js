@@ -11,7 +11,7 @@ var connection = new Mongo.Connection('mongodb://localhost:27017/foursqare');
 var collection = connection.collection('venues');
 var sphereKnn = require('sphere-knn');
 var _ = require('lodash');
-var DISTANCE_TOLERANCE = 25; //meters
+var DISTANCE_TOLERANCE = 50; //meters
 
 // var chroma = require('chroma-js');
 /**
@@ -429,23 +429,32 @@ collection.find({
 
     var extendedLines = getExtendedLines(wayPoints);
 
+    if (program.dry) {
+        console.time('propagateDensity');
+    }
+
     propagateDensity(wayPoints);
+
+    if (program.dry) {
+        console.timeEnd('propagateDensity');
+    }
 
     if (program.dry) {
         console.time('cluster');
     }
 
+    cluster(wayPoints);
+
     if (program.dry) {
         console.timeEnd('cluster');
     }
 
-    cluster(wayPoints);
 
     if (program.dry) {
         console.timeEnd('total');
     }
 
-    var features = [].concat(extendedLines, venuePoints, nodePointsAr);
+    var features = [].concat(venuePoints);
 
     if (!program.dry) {
         console.log(JSON.stringify(turf.featurecollection(features)));
