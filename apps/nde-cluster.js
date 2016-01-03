@@ -31,6 +31,18 @@ program
 
 program.parse(process.argv);
 
+var R = 6371;//km
+var DEG_RAD = Math.PI / 180;
+var LAT_COS = Math.cos((program.bbox[0] + program.bbox[2]) / 2 * DEG_RAD);
+
+function fastDistance(p1, p2) {
+    var g1 = p1.geometry.coordinates;
+    var g2 = p2.geometry.coordinates;
+    var x = (g1[0] - g2[0]) * LAT_COS * DEG_RAD;
+    var y = (g1[1] - g2[1]) * DEG_RAD;
+    return Math.sqrt(x * x + y * y) * R;
+}
+
 
 if (program.dry) {
     console.log('tolerance', program.tolerance);
@@ -190,14 +202,17 @@ function appendVenuesToNodePoints(linesById, venues) {
         var lookupPoints = lookup(
             venuePoint.geometry.coordinates[1],
             venuePoint.geometry.coordinates[0],
-            1
+            +Infinity,
+            300
         );
-        var lookupLines = lookupPoints[0].ways.map(function (wayId) {
+        var lookupLines = _.uniq([].concat.apply([], lookupPoints.map(function (p) {
+            return p.ways;
+        }))).map(function (wayId) {
             return linesById[wayId];
-        });
+        })
         lookupLines.forEach(function (line) {
             var pointOnLine = turf.pointOnLine(line, venuePoint);
-            var distance = turf.distance(venuePoint, pointOnLine);
+            var distance = fastDistance(venuePoint, pointOnLine);
             //TODO: to find closest named street we can use buildings data
             if (distance < minDistance) {
                 minDistance = distance;
@@ -237,7 +252,7 @@ function appendVenuesToNodePoints(linesById, venues) {
  */
 function getDensity(from, to) {
     if (from.properties.density) {
-        var distance = turf.distance(from, to) * 1000;
+        var distance = fastDistance(from, to) * 1000;
         var density = from.properties.density - distance / program.tolerance;
         if (density < 0) {
             density = 0;
@@ -250,7 +265,7 @@ function getDensity(from, to) {
 
 function pointsConected(p1, p2) {
     var density = Math.max(p1.properties.density + p2.properties.density);
-    var distance = turf.distance(p1, p2) * 1000;
+    var distance = fastDistance(p1, p2) * 1000;
     return density * program.tolerance >= distance;
 }
 
@@ -268,8 +283,8 @@ function getExtendedWayPoints(venuePoints) {
             });
             //sort by distance
             nodeVenuePoints.sort(function (p1, p2) {
-                var d1 = turf.distance(p1, nodePoint);
-                var d2 = turf.distance(p2, nodePoint);
+                var d1 = fastDistance(p1, nodePoint);
+                var d2 = fastDistance(p2, nodePoint);
                 return  d1 - d2;
             });
             points.push(nodePoint);
