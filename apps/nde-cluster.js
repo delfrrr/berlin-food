@@ -186,6 +186,15 @@ function getVenuePoint(venue) {
 }
 
 /**
+ * @param {Venue} venue
+ * @returns {Number} density
+ */
+function getVenueDensity(venue) {
+    var rating = venue.rating || 5;
+    return 0.25 + (rating - 5) * 0.75 / 5;
+}
+
+/**
  * @param {Object.<Way.id, LineString>} linesById
  * @param {Venue[]} venues
  */
@@ -241,7 +250,7 @@ function appendVenuesToNodePoints(linesById, venues) {
         closestPointOnLine.properties.way = way;
         closestPointOnLine.properties.ways = [way.id];
         closestPointOnLine.properties.venue = venue;
-        closestPointOnLine.properties.density = 1;
+        closestPointOnLine.properties.density = getVenueDensity(venue);
     });
 }
 
@@ -263,6 +272,11 @@ function getDensity(from, to) {
     }
 }
 
+/**
+ * @param {Point} p1
+ * @param {Point} p2
+ * @return {Boolean} is connected
+ */
 function pointsConected(p1, p2) {
     var density = Math.max(p1.properties.density + p2.properties.density);
     var distance = fastDistance(p1, p2) * 1000;
