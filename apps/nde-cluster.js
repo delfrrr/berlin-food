@@ -11,7 +11,6 @@ var connection = new Mongo.Connection('mongodb://localhost:27017/foursqare');
 var collection = connection.collection('venues');
 var sphereKnn = require('sphere-knn');
 var _ = require('lodash');
-var DISTANCE_TOLERANCE = 50; //meters
 
 // var chroma = require('chroma-js');
 /**
@@ -26,11 +25,15 @@ program
     .option('--ways [string]', 'json with ways exported from OSM', String)
     .option('--filter [string]', 'filter by venue name', null)
     .option('--dry [boolean]', 'do not output json', false)
+    .option('--tolerance [number]', 'distance tolerance, meters', Number, 100)
+    .option('--rating [number]', 'minimal rating', Number, 0)
     .description('clusters venues');
 
 program.parse(process.argv);
 
+
 if (program.dry) {
+    console.log('tolerance', program.tolerance);
     console.time('total');
 }
 
@@ -235,7 +238,7 @@ function appendVenuesToNodePoints(linesById, venues) {
 function getDensity(from, to) {
     if (from.properties.density) {
         var distance = turf.distance(from, to) * 1000;
-        var density = from.properties.density - distance / DISTANCE_TOLERANCE;
+        var density = from.properties.density - distance / program.tolerance;
         if (density < 0) {
             density = 0;
         }
@@ -248,7 +251,7 @@ function getDensity(from, to) {
 function pointsConected(p1, p2) {
     var density = Math.max(p1.properties.density + p2.properties.density);
     var distance = turf.distance(p1, p2) * 1000;
-    return density * DISTANCE_TOLERANCE >= distance;
+    return density * program.tolerance >= distance;
 }
 
 /**
@@ -426,21 +429,31 @@ function cluster(wayPoints) {
     }
 }
 
+var conditions = [
+    {'location.lat': {
+        $gte: program.bbox[0]
+    }},
+    {'location.lat': {
+        $lte: program.bbox[2]
+    }},
+    {'location.lng': {
+        $gte: program.bbox[1]
+    }},
+    {'location.lng': {
+        $lte: program.bbox[3]
+    }}
+];
+
+if (program.rating) {
+    conditions.push({
+        'rating': {
+            $gte: program.rating
+        }
+    });
+}
+
 collection.find({
-    $and: [
-        {'location.lat': {
-            $gte: program.bbox[0]
-        }},
-        {'location.lat': {
-            $lte: program.bbox[2]
-        }},
-        {'location.lng': {
-            $gte: program.bbox[1]
-        }},
-        {'location.lng': {
-            $lte: program.bbox[3]
-        }}
-    ]
+    $and: conditions
 }).toArray().then(function (venues) {
     var linesById = nodesAndWays.ways.reduce(function (linesById, way) {
         linesById[way.id] = wayToline(way, {});

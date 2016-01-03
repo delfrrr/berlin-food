@@ -76,8 +76,12 @@ module.exports = React.createFactory(React.createClass({
                 }
             },
             pointToLayer: function (feature, latLng) {
+                var radius = 3;
+                if (feature.properties.venue.rating) {
+                    radius = radius + Math.exp(feature.properties.venue.rating) / Math.exp(10) * 20;
+                }
                 return L.circleMarker(latLng, {
-                    radius: feature.properties.venue.rating || 3
+                    radius: radius
                 });
             }
         });
