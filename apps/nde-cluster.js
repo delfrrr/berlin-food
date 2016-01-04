@@ -1,5 +1,5 @@
 /**
- * @file cluster by network
+ * @file group by network
  */
 
 'strict mode';
@@ -25,9 +25,10 @@ program
     .option('--ways [string]', 'json with ways exported from OSM', String)
     .option('--filter [string]', 'filter by venue name', null)
     .option('--dry [boolean]', 'do not output json', false)
+    .option('--cluster [boolean]', 'output cluster feature collection', false)
     .option('--tolerance [number]', 'distance tolerance, meters', Number, 100)
     .option('--rating [number]', 'minimal rating', Number, 0)
-    .description('clusters venues');
+    .description('groups venues');
 
 program.parse(process.argv);
 
@@ -222,7 +223,6 @@ function appendVenuesToNodePoints(linesById, venues) {
         lookupLines.forEach(function (line) {
             var pointOnLine = turf.pointOnLine(line, venuePoint);
             var distance = fastDistance(venuePoint, pointOnLine);
-            //TODO: to find closest named street we can use buildings data
             if (distance < minDistance) {
                 minDistance = distance;
                 closestLine = line;
@@ -313,21 +313,6 @@ function getExtendedWayPoints(venuePoints) {
 }
 
 /**
- * @param  {Object.<Way.id, Points[]>} wayPoints with venue points
- * @return {LineString[]}
- */
-function getExtendedLines(wayPoints) {
-    return nodesAndWays.ways.map(function (way) {
-        var geometries = wayPoints[way.id].map(function (point) {
-            return point.geometry.coordinates;
-        });
-        return turf.linestring(geometries, {
-            way: way
-        });
-    });
-}
-
-/**
  * @param {Object.<Way.id, Points[]>} wayPoints
  */
 function propagateDensity(wayPoints) {
@@ -357,20 +342,20 @@ function propagateDensity(wayPoints) {
  * @param {Object.<Way.id, Points[]>} wayPoints
  */
 function cluster(wayPoints) {
-    var lastClusterId = 0;
+    var lastGroupId = 0;
     /**
      * @type {Array.<[cid, cid]>}
      */
-    var clusterLinks = [];
+    var groupLinks = [];
 
     /**
      * @type {cid[]}
      */
-    var clusterIds = [];
+    var groupIds = [];
     if (program.dry) {
-        console.time('find groups by streets');
+        console.time('find clusters by streets');
     }
-    //find groups by streets
+    //find clusters by streets
     Object.keys(wayPoints).forEach(function (wayId) {
         var wayPointsAr = wayPoints[wayId];
         wayPointsAr.forEach(function (point, i) {
@@ -378,84 +363,122 @@ function cluster(wayPoints) {
                 var prevPoint = i && wayPointsAr[i - 1];
                 if (
                     prevPoint &&
-                    prevPoint.properties.clusterId &&
+                    prevPoint.properties.groupId &&
                     pointsConected(point, prevPoint)
                 ) {
-                    if (point.properties.clusterId) {
-                        clusterLinks.push([
-                            point.properties.clusterId,
-                            prevPoint.properties.clusterId
+                    if (point.properties.groupId) {
+                        groupLinks.push([
+                            point.properties.groupId,
+                            prevPoint.properties.groupId
                         ])
                     } else {
-                        point.properties.clusterId = prevPoint.properties.clusterId;
+                        point.properties.groupId = prevPoint.properties.groupId;
                     }
-                } else if (!point.properties.clusterId) {
-                    point.properties.clusterId = ++lastClusterId;
-                    clusterIds.push(point.properties.clusterId);
+                } else if (!point.properties.groupId) {
+                    point.properties.groupId = ++lastGroupId;
+                    groupIds.push(point.properties.groupId);
                 }
             }
         });
     });
 
     if (program.dry) {
-        console.timeEnd('find groups by streets');
+        console.timeEnd('find clusters by streets');
     }
 
-    var uncheckedGroups = clusterIds.map(function (clusterId) {
-        return [clusterId];
-    }).concat(clusterLinks);
+    var uncheckedClusters = groupIds.map(function (groupId) {
+        return [groupId];
+    }).concat(groupLinks);
 
-    var checkedGroups = [];
+    var checkedClusters = [];
 
     /**
      * @type {Object.<cid, gid>}
      */
-    var clusterToGroup = {};
+    var groupToCluster = {};
 
     // var i = 0;
 
     if (program.dry) {
-        console.time('group clusters');
+        console.time('cluster groups');
     }
-    //group clusters
+    //cluster groups
     var g;
-    while (uncheckedGroups.length) {
-        g = uncheckedGroups.pop();
-        if (!uncheckedGroups.some(function (cg, k) {
+    while (uncheckedClusters.length) {
+        g = uncheckedClusters.pop();
+        if (!uncheckedClusters.some(function (cg, k) {
             if (cg.some(function (cid) {
                 return g.indexOf(cid) >= 0;
             })) {
-                uncheckedGroups[k] = _.uniq([].concat(cg, g));
+                uncheckedClusters[k] = _.uniq([].concat(cg, g));
                 return true;
             }
         })) {
             g.forEach(function (cid) {
-                clusterToGroup[cid] = checkedGroups.length;
+                groupToCluster[cid] = checkedClusters.length;
             });
-            checkedGroups.push(g);
+            checkedClusters.push(g);
 
         }
     }
     if (program.dry) {
-        console.timeEnd('group clusters');
-        console.log('clusterGroups', checkedGroups.length);
+        console.timeEnd('cluster groups');
+        console.log('groupClusters', checkedClusters.length);
     }
 
     if (program.dry) {
-        console.time('assign group ids');
+        console.time('assign cluster ids');
     }
-    //assign group ids
+    //assign cluster ids
     Object.keys(wayPoints).forEach(function (wayId) {
         var wayPointsAr = wayPoints[wayId];
         wayPointsAr.forEach(function (point) {
-            if (point.properties.clusterId) {
-                point.properties.groupId = clusterToGroup[point.properties.clusterId];
+            if (point.properties.groupId) {
+                point.properties.clusterId = groupToCluster[point.properties.groupId];
             }
         });
     });
     if (program.dry) {
-        console.timeEnd('assign group ids');
+        console.timeEnd('assign cluster ids');
     }
+}
+
+/**
+ * @param {Object.<Way.id, Points[]>} wayPoints
+ * @param {Number} minVenueNumber
+ * @return  {LineString[]}
+ */
+function getClusterLines(wayPoints, minVenueNumber) {
+    var clusterLines = [];
+    var numberOfVenuesByClusterId = {}
+
+    nodesAndWays.ways.forEach(function (way) {
+        if (way.tags.name) {
+            var coordinatesByClusterId = {};
+            wayPoints[way.id].forEach(function (point) {
+                //TODO: drop line if no link between points
+                if (point.properties.clusterId) {
+                    var clusterCoordinates = coordinatesByClusterId[point.properties.clusterId] || [];
+                    clusterCoordinates.push(point.geometry.coordinates);
+                    coordinatesByClusterId[point.properties.clusterId] = clusterCoordinates;
+                    if (point.properties.venue) {
+                        numberOfVenuesByClusterId[point.properties.clusterId] = numberOfVenuesByClusterId[point.properties.clusterId] || 0;
+                        numberOfVenuesByClusterId[point.properties.clusterId]++;
+                    }
+                }
+            });
+            _.forIn(coordinatesByClusterId, function (coordinatesAr, clusterId) {
+                clusterLines.push(turf.linestring(coordinatesAr, {
+                    clusterId: Number(clusterId)
+                }));
+            });
+        }
+    });
+    return clusterLines.filter(function (lineString) {
+        var clusterId = lineString.properties.clusterId;
+        return numberOfVenuesByClusterId[clusterId] >= minVenueNumber;
+    });
+
 }
 
 var conditions = [
@@ -506,8 +529,6 @@ collection.find({
      */
     var wayPoints = getExtendedWayPoints(venuePoints);
 
-    var extendedLines = getExtendedLines(wayPoints);
-
     if (program.dry) {
         console.time('propagateDensity');
     }
@@ -519,21 +540,57 @@ collection.find({
     }
 
     if (program.dry) {
-        console.time('cluster');
+        console.time('group');
     }
 
     cluster(wayPoints);
 
     if (program.dry) {
-        console.timeEnd('cluster');
+        console.timeEnd('group');
     }
 
+
+    var clustersLines = getClusterLines(wayPoints, 0);
+
+    var clusters = {};
+    venuePoints.forEach(function (p) {
+        var clusterId = p.properties.clusterId;
+        if (!clusters[clusterId]) {
+            clusters[clusterId] = {
+                clusterId: Number(clusterId),
+                venuePoints: [],
+                streetLines: []
+            }
+        }
+        var clusterObj = clusters[clusterId];
+        clusterObj.venuePoints.push(getVenuePoint(p.properties.venue));
+    });
+
+    clustersLines.forEach(function (line) {
+        clusters[line.properties.clusterId].streetLines.push(line);
+    });
+
+    var features
+    if (program.cluster) {
+        features = [];
+        _.forIn(clusters, function (cluster) {
+            var pointsCollection = turf.featurecollection(cluster.venuePoints);
+            var center = turf.center(pointsCollection);
+            var bbox = turf.extent(pointsCollection);
+            var radius = fastDistance(turf.point(bbox.slice(0,2)), center);
+            _.assign(center.properties, cluster, {
+                radius: radius,
+                bbox: bbox
+            });
+            features.push(center);
+        });
+    } else {
+        features = [].concat(venuePoints, clustersLines);
+    }
 
     if (program.dry) {
         console.timeEnd('total');
     }
-
-    var features = [].concat(venuePoints);
 
     if (!program.dry) {
         console.log(JSON.stringify(turf.featurecollection(features)));

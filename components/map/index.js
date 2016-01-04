@@ -13,6 +13,8 @@ var classnames = require('classnames');
 var button = React.createFactory(require('elemental/lib/components/Button'));
 var buttonGroup = React.createFactory(require('elemental/lib/components/ButtonGroup'));
 var chroma = require('chroma-js');
+var colors = chroma.cubehelix().lightness([0.3, 0.5]).scale().colors(20);
+// var turf  = require('turf');
 
 require('elemental/less/elemental.less');
 require('./index.less');
@@ -31,6 +33,7 @@ module.exports = React.createFactory(React.createClass({
         }
         this._layers = {
             allVenues: L.mapbox.featureLayer(allVenues),
+            clusters: this._createClustersLayer(),
             streets: this._createStreetLayer()
         }
 
@@ -47,6 +50,9 @@ module.exports = React.createFactory(React.createClass({
                 var method = value ? 'addLayer' : 'removeLayer';
                 if (layer) {
                     component._map.featureLayer[method](layer);
+                    if (method === 'addLayer' && key === 'streets') {
+                        layer.bringToFront();
+                    }
                 }
             });
         }));
@@ -55,14 +61,34 @@ module.exports = React.createFactory(React.createClass({
     /**
      * @return {L.FeatureGroup}
      */
+    _createClustersLayer: function () {
+        var layer = L.mapbox.featureLayer('/geojson/berlin-clusters.json', {
+            style: function (feature) {
+                var color = chroma(colors[feature.properties.clusterId%colors.length]).brighten(1).css();
+                return {
+                    fillColor: color,
+                    stroke: false,
+                    fill: true,
+                    fillOpacity: 0.8
+                }
+            },
+            pointToLayer: function (feature, latLng) {
+                return new L.Circle(latLng, feature.properties.radius * 1000);
+            }
+        });
+        return layer;
+    },
+
+    /**
+     * @return {L.FeatureGroup}
+     */
     _createStreetLayer: function () {
-        var colors = chroma.cubehelix().lightness([0.3, 0.7]).scale().colors(20);
         var layer = L.mapbox.featureLayer('/geojson/streets.json', {
             style: function (feature) {
                 if (feature.geometry.type === 'Point') {
                     var fillColor = '#000000';
-                    if (feature.properties.groupId) {
-                        fillColor = colors[feature.properties.groupId%colors.length]
+                    if (feature.properties.clusterId) {
+                        fillColor = colors[feature.properties.clusterId%colors.length]
                     }
                     return {
                         stroke: false,
@@ -71,13 +97,18 @@ module.exports = React.createFactory(React.createClass({
                         color: fillColor,
                         fillOpacity: 1
                     }
+                } else if (feature.geometry.type === 'LineString') {
+                    return {
+                        color: colors[feature.properties.clusterId%colors.length],
+                        opacity: 1,
+                        weight: 2
+                    };
                 } else {
                     return L.mapbox.simplestyle.style.apply(L.mapbox.simplestyle, arguments);
                 }
             },
             pointToLayer: function (feature, latLng) {
-                var rating = feature.properties.venue.rating || 5;
-                var radius = (0.25 + (rating - 5) * 0.75 / 5) * 10;
+                var radius = feature.properties.density * 10;
                 return L.circleMarker(latLng, {
                     radius: radius
                 });
@@ -89,8 +120,8 @@ module.exports = React.createFactory(React.createClass({
             if (way) {
                 console.log(way.tags.name || way.tags.highway);
             }
-            if (props.hasOwnProperty('groupId')) {
-                console.log('groupId', props.groupId);
+            if (props.hasOwnProperty('clusterId')) {
+                console.log('clusterId', props.clusterId);
             }
         }, this);
         return layer;
@@ -128,13 +159,19 @@ module.exports = React.createFactory(React.createClass({
                         'is-active': mapModel.get('allVenues')
                     }),
                     onClick: this._onMenuClick.bind(this, 'allVenues')
-                }, 'All venues'),
+                }, 'Venues'),
                 button({
                     className: classnames({
                         'is-active': mapModel.get('streets')
                     }),
                     onClick: this._onMenuClick.bind(this, 'streets')
-                }, 'Streets')
+                }, 'Points'),
+                button({
+                    className: classnames({
+                        'is-active': mapModel.get('clusters')
+                    }),
+                    onClick: this._onMenuClick.bind(this, 'clusters')
+                }, 'Clusters')
             )
         );
     }

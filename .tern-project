@@ -1,6 +1,10 @@
 {
+  "ecmaVersion": 6,
   "libs": [
     "browser"
+  ],
+  "dontLoad": [
+    "geojson/*"
   ],
   "plugins": {
     "complete_strings": {},
