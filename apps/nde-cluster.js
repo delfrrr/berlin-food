@@ -445,9 +445,43 @@ function cluster(wayPoints) {
 
 /**
  * @param {Object.<Way.id, Points[]>} wayPoints
+ * @return  {Object.<clusterId, Way.id[]>}
+ */
+function getWaysByCluster(wayPoints) {
+    var waysByCluster = {};
+    _.forIn(wayPoints, function (points, wayId) {
+        wayId = Number(wayId);
+        var clusterIds = [];
+        points.forEach(function (p) {
+            var clusterId = p.properties.clusterId;
+            if (clusterId) {
+                if (p.properties.venue || p.properties.ways.length > 1) {
+                    clusterIds.push(clusterId);
+                }
+            }
+        });
+        var clusterIdsStats = {};
+        clusterIds.forEach(function (clusterId) {
+            clusterIdsStats[clusterId] = clusterIdsStats[clusterId] || 0;
+            clusterIdsStats[clusterId]++;
+        })
+        _.uniq(clusterIds).forEach(function (clusterId) {
+            if (clusterIdsStats[clusterId] > 1) {
+                var clusterWays = waysByCluster[clusterId] || [];
+                clusterWays.push(wayId);
+                waysByCluster[clusterId] = clusterWays;
+            }
+        });
+    });
+    return waysByCluster;
+}
+
+/**
+ * @param {Object.<Way.id, Points[]>} wayPoints
  * @return  {LineString[]}
  */
 function getClusterLines(wayPoints) {
+    var waysByCluster = getWaysByCluster(wayPoints);
     var clusterLines = [];
     nodesAndWays.ways.forEach(function (way) {
         /**
@@ -481,23 +515,24 @@ function getClusterLines(wayPoints) {
         }
         clusterLinesPoints.forEach(function (points) {
             var clusterId = points[0].properties.clusterId;
+            var clusterWays = waysByCluster[clusterId];
             var valuablePointsKeys = [];
             var coordinatesAr = []
             points.forEach(function (point, k) {
                 coordinatesAr.push(point.geometry.coordinates);
                 if (
-                    point.properties.venue || //venue
-                    //TODO: take into account only ways which are in cluster and has venues
-                    point.properties.ways.length > 1 //connects ways
+                    point.properties.venue ||
+                    _.intersection(point.properties.ways, clusterWays).length > 1
                 ) {
                     valuablePointsKeys.push(k);
                 }
             });
             if (valuablePointsKeys.length > 1) {
-                var linestring = turf.linestring(coordinatesAr.slice(
+                coordinatesAr = coordinatesAr.slice(
                     valuablePointsKeys.shift(),
                     valuablePointsKeys.pop() + 1
-                ), {
+                );
+                var linestring = turf.linestring(coordinatesAr, {
                     clusterId: clusterId,
                     way: way
                 });
@@ -506,6 +541,33 @@ function getClusterLines(wayPoints) {
         });
     });
     return clusterLines;
+}
+
+/**
+ * @param {Object.<Way.id, Points[]>} wayPoints
+ * @param {LineString[]} clustersLines
+ * @param {Point[]} venuePoints
+ * @return {Object.<clusterId, Point>} clusters
+ */
+function getClusters(wayPoints, clustersLines, venuePoints) {
+    var clusters = {};
+    venuePoints.forEach(function (p) {
+        var clusterId = p.properties.clusterId;
+        if (!clusters[clusterId]) {
+            clusters[clusterId] = {
+                clusterId: Number(clusterId),
+                venuePoints: [],
+                streetLines: []
+            }
+        }
+        var clusterObj = clusters[clusterId];
+        clusterObj.venuePoints.push(getVenuePoint(p.properties.venue));
+    });
+
+    clustersLines.forEach(function (line) {
+        clusters[line.properties.clusterId].streetLines.push(line);
+    });
+    return clusters;
 }
 
 var conditions = [
@@ -579,23 +641,7 @@ collection.find({
 
     var clustersLines = getClusterLines(wayPoints);
 
-    var clusters = {};
-    venuePoints.forEach(function (p) {
-        var clusterId = p.properties.clusterId;
-        if (!clusters[clusterId]) {
-            clusters[clusterId] = {
-                clusterId: Number(clusterId),
-                venuePoints: [],
-                streetLines: []
-            }
-        }
-        var clusterObj = clusters[clusterId];
-        clusterObj.venuePoints.push(getVenuePoint(p.properties.venue));
-    });
-
-    clustersLines.forEach(function (line) {
-        clusters[line.properties.clusterId].streetLines.push(line);
-    });
+    var clusters = getClusters(wayPoints, clustersLines, venuePoints);
 
     var features
     if (program.cluster) {
