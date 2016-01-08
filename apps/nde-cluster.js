@@ -36,6 +36,11 @@ var R = 6371;//km
 var DEG_RAD = Math.PI / 180;
 var LAT_COS = Math.cos((program.bbox[0] + program.bbox[2]) / 2 * DEG_RAD);
 
+/**
+ * @param {Point} p1
+ * @param {Point} p2
+ * @return {Number} km
+ */
 function fastDistance(p1, p2) {
     var g1 = p1.geometry.coordinates;
     var g2 = p2.geometry.coordinates;
