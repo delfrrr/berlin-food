@@ -38,7 +38,8 @@ clusters.forEach(function (clusterPoint) {
     clusterPoint.properties = {
         clusterId: clusterPoint.properties.clusterId,
         bbox: clusterPoint.properties.clusterId,
-        radius: clusterPoint.properties.radius //km
+        radius: clusterPoint.properties.radius, //km
+        venuesCount: clusterPoint.properties.venuePoints.length
     }
 });
 
@@ -51,9 +52,9 @@ if (program.dry) {
 var folder = process.cwd() + '/' + program.out;
 
 if (!program.dry) {
-    fs.writeFileSync(folder + '/' + program.prefix + 'clusters.json', turf.featurecollection(clusters));
-    fs.writeFileSync(folder + '/' + program.prefix + 'venues.json', turf.featurecollection(venues));
-    fs.writeFileSync(folder + '/' + program.prefix + 'streets.json', turf.featurecollection(streets));
+    fs.writeFileSync(folder + '/' + program.prefix + 'clusters.json', JSON.stringify(turf.featurecollection(clusters)));
+    fs.writeFileSync(folder + '/' + program.prefix + 'venues.json', JSON.stringify(turf.featurecollection(venues)));
+    fs.writeFileSync(folder + '/' + program.prefix + 'streets.json', JSON.stringify(turf.featurecollection(streets)));
 } else {
     console.log(folder + '/' + program.prefix + 'clusters.json');
     console.log(folder + '/' + program.prefix + 'venues.json');
