@@ -22,6 +22,11 @@ program.parse(process.argv);
  */
 var clusters = require(process.cwd() + '/' + program.clusters).features;
 
+//smaller cluster should appear on top
+clusters.sort(function (c1, c2) {
+    return c2.properties.radius - c1.properties.radius;
+});
+
 /**
  * @type {Point[]}
  */
