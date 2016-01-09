@@ -31,7 +31,7 @@ var minNumberOfVenues = scale.scaleLinear().domain([1, 19]).range([10,  1]);
  * @extends L.mapbox.FeatureLayer
  */
 var Layer = L.mapbox.FeatureLayer.extend({
-    
+
     options: {
         style: function (feature) {
             var zoom = this._map.getZoom();

@@ -2,6 +2,8 @@
  * @module components/map/cluster-color
  */
 
+'use strict';
+
 var chroma = require('chroma-js');
 
 /**

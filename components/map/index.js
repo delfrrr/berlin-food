@@ -7,6 +7,7 @@
 var React = require('react');
 var L = require('mapbox');
 var ClusterLayer = require('./cluster-layer');
+var VenueLayer = require('./venue-layer');
 
 require('./index.less');
 
@@ -28,7 +29,10 @@ module.exports = React.createFactory(React.createClass({
     },
 
     _initLayers: function () {
-        this._map.addLayer(new ClusterLayer('/geojson/processed.clusters.json'));
+        var clusterLayer = new ClusterLayer('/geojson/processed.clusters.json');
+        var venueLayer = new VenueLayer('/geojson/processed.venues.json');
+        this._map.addLayer(clusterLayer);
+        this._map.addLayer(venueLayer);
     },
 
     _onMapChange: function () {

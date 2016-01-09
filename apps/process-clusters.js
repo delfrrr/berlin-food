@@ -38,11 +38,17 @@ var venues = [];
 var streets = [];
 
 clusters.forEach(function (clusterPoint) {
-    [].push.apply(venues, clusterPoint.properties.venuePoints);
-    [].push.apply(streets, clusterPoint.properties.streetLines);
+    var clusterId = clusterPoint.properties.clusterId;
+    clusterPoint.properties.venuePoints.forEach(function (p) {
+        p.properties.clusterId = clusterId;
+        venues.push(p);
+    });
+    clusterPoint.properties.streetLines.forEach(function (p) {
+        p.properties.clusterId = clusterId;
+        streets.push(p);
+    });
     clusterPoint.properties = {
-        clusterId: clusterPoint.properties.clusterId,
-        bbox: clusterPoint.properties.clusterId,
+        clusterId: clusterId,
         radius: clusterPoint.properties.radius, //km
         venuesCount: clusterPoint.properties.venuePoints.length
     }
