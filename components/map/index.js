@@ -18,6 +18,14 @@ var scale = require('d3-scale');
  * @param {Number} fillOpacity
  */
 var clusterOpacity = scale.scaleLinear().domain([1, 14, 19]).range([0.8, 0.8, 0.3]);
+
+/**
+ * @type {Function}
+ * @param {Number} zoom
+ * @return {Number} min number of venues
+ */
+var minNumberOfVenues = scale.scaleLinear().domain([1, 19]).range([10,  1]);
+
 var COLORS = chroma.cubehelix().lightness([0.3, 0.5]).scale().colors(20);
 
 /**
@@ -49,6 +57,16 @@ module.exports = React.createFactory(React.createClass({
 
     _initLayers: function () {
         var component = this;
+
+        /**
+         * filters clusters
+         * @param {Point} feature
+         * @param {Boolean} is shown
+         */
+        var filter = function (feature) {
+            var zoom = component._map.getZoom();
+            return feature.properties.venuesCount > minNumberOfVenues(zoom);
+        }
         var clustersLayer = L.mapbox.featureLayer('/geojson/processed.clusters.json', {
             style: function (feature) {
                 var zoom = component._map.getZoom();
@@ -63,15 +81,14 @@ module.exports = React.createFactory(React.createClass({
             pointToLayer: function (feature, latLng) {
                 return new L.Circle(latLng, feature.properties.radius * 1000);
             },
-            filter: function (feature) {
-                return feature.properties.venuesCount > 1;
-            }
+            filter: filter
         });
         this._map.on('zoomend', function () {
             var zoom = component._map.getZoom();
             clustersLayer.setStyle({
                 fillOpacity: clusterOpacity(zoom)
             });
+            clustersLayer.setFilter(filter);
         });
         this._map.addLayer(clustersLayer);
     },
