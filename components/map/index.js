@@ -8,6 +8,7 @@ var React = require('react');
 var L = require('mapbox');
 var ClusterLayer = require('./cluster-layer');
 var VenueLayer = require('./venue-layer');
+var StreetLayer = require('./street-layer');
 var viewModel = require('./view-model');
 
 require('./index.less');
@@ -41,8 +42,10 @@ module.exports = React.createFactory(React.createClass({
             this._map.on('moveend', this._updateVisibleClusters, this);
         }, this);
         var venueLayer = new VenueLayer('/geojson/processed.venues.json');
+        var streetLayer = new StreetLayer('/geojson/processed.streets.json');
         this._map.addLayer(this._clusterLayer);
         this._map.addLayer(venueLayer);
+        this._map.addLayer(streetLayer);
     },
 
     _onMapChange: function () {

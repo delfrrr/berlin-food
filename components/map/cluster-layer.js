@@ -35,7 +35,8 @@ var Layer = L.mapbox.FeatureLayer.extend({
                 fillColor: color,
                 stroke: false,
                 fill: true,
-                fillOpacity: clusterOpacity(zoom)
+                fillOpacity: clusterOpacity(zoom),
+                clickable: false
             }
         },
         pointToLayer: function (feature, latLng) {

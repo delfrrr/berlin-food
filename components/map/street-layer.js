@@ -1,15 +1,10 @@
 /**
- * @module components/map/venue-layer
+ * @module street-layer
  */
 
 'use strict';
 
 var L = require('mapbox');
-var scale = require('d3-scale');
-var getRadius = scale.scalePow()
-    .exponent(3)
-    .domain([1, 9])
-    .range([1, 25]);
 var superClass = new L.mapbox.FeatureLayer();
 var clusterColor = require('./cluster-color');
 
@@ -33,18 +28,11 @@ var Layer = L.mapbox.FeatureLayer.extend({
         style: function (feature) {
             var color = clusterColor(feature.properties.clusterId);
             return {
-                fillColor: color,
-                stroke: false,
-                fill: true,
-                fillOpacity: 1,
-                clickable: false
+                color: color,
+                weight: 2,
+                clickable: false,
+                opacity: 1
             }
-        },
-        pointToLayer: function (feature, latLng) {
-            var venue = feature.properties.venue;
-            var rating = venue.rating || 5;
-
-            return new L.Circle(latLng, getRadius(rating));
         },
         filter: falseFilter
     },
@@ -62,7 +50,7 @@ var Layer = L.mapbox.FeatureLayer.extend({
 
     _updateFilter: function () {
         var zoom = this._map.getZoom();
-        if (zoom > 13) {
+        if (zoom > 15) {
             var visibileClusters = viewModel.get('visibileClusters');
             this.setFilter(this._filter.bind(this, visibileClusters.reduce(function (visibileClusters, id) {
                 visibileClusters[id] = true;
