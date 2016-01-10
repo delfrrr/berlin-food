@@ -1,6 +1,6 @@
 {
   "name": "foursquare-heatmap",
-  "version": "1.0.44",
+  "version": "1.0.45",
   "description": "foursquare heatmap",
   "main": "index.js",
   "scripts": {

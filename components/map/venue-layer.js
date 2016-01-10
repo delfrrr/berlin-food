@@ -6,16 +6,20 @@
 
 var L = require('mapbox');
 var scale = require('d3-scale');
-var getRadius = scale.scaleLinear().domain([0, 5, 8, 10]).range([2, 3, 10, 15]);
+var getRadius = scale.scalePow()
+    .exponent(3)
+    .domain([1, 9])
+    .range([1, 25]);
 var superClass = new L.mapbox.FeatureLayer();
 var clusterColor = require('./cluster-color');
+var clusterSize = require('./min-cluster-size');
 var Model = require('backbone-model').Model;
 
 /**
  * @type {Model}
  */
 var viewModel = new Model({
-    visible: false
+    minClusterSize: +Infinity
 });
 
 
@@ -39,9 +43,7 @@ var Layer = L.mapbox.FeatureLayer.extend({
             var venue = feature.properties.venue;
             var rating = venue.rating || 5;
 
-            return new L.CircleMarker(latLng, {
-                radius: getRadius(rating)
-            });
+            return new L.Circle(latLng, getRadius(rating));
         },
         filter: function () {
             return false;
@@ -56,27 +58,27 @@ var Layer = L.mapbox.FeatureLayer.extend({
         map.on('zoomend', function () {
             this._updateForZoom(map);
         }, this);
-        viewModel.on('change:visible', function (m, visible) {
-            if (visible) {
-                this.setFilter(function () {
-                    return true;
-                });
-            } else {
-                this.setFilter(function () {
-                    return false;
-                });
-            }
+        viewModel.on('change:minClusterSize', function () {
+            this.setFilter(this._filter);
         }, this);
         this._updateForZoom(map);
+    },
+
+    /**
+     * @param {Point} feature
+     * @return {Booleam}
+     */
+    _filter: function (feature) {
+        return feature.properties.clusterSize > viewModel.get('minClusterSize');
     },
 
 
     _updateForZoom: function (map) {
         var zoom = map.getZoom();
-        if (zoom > 14) {
-            viewModel.set('visible', true);
+        if (zoom > 12) {
+            viewModel.set('minClusterSize', clusterSize(zoom));
         } else {
-            viewModel.set('visible', false);
+            viewModel.set('minClusterSize', +Infinity);
         }
         this.bringToFront();
     }

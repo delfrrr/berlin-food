@@ -16,15 +16,9 @@ var clusterColor = require('./cluster-color');
  * @param {Number} zoom
  * @param {Number} fillOpacity
  */
-var clusterOpacity = scale.scaleLinear().domain([1, 14, 19]).range([0.8, 0.8, 0.3]);
+var clusterOpacity = scale.scaleLinear().domain([1, 14, 17, 19]).range([0.8, 0.8, 0.3, 0]);
 
-/**
- * @type {Function}
- * @param {Number} zoom
- * @return {Number} min number of venues
- */
-var minNumberOfVenues = scale.scaleLinear().domain([1, 19]).range([10,  1]);
-
+var clusterSize = require('./min-cluster-size');
 
 /**
  * @class
@@ -72,7 +66,7 @@ var Layer = L.mapbox.FeatureLayer.extend({
         var zoom = this._map.getZoom();
         this.setStyle();
         this.setFilter(function (feature) {
-            return feature.properties.venuesCount > minNumberOfVenues(zoom);
+            return feature.properties.clusterSize > clusterSize(zoom);
         });
     }
 });

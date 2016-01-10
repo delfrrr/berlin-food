@@ -39,8 +39,10 @@ var streets = [];
 
 clusters.forEach(function (clusterPoint) {
     var clusterId = clusterPoint.properties.clusterId;
+    var clusterSize = clusterPoint.properties.venuePoints.length;
     clusterPoint.properties.venuePoints.forEach(function (p) {
         p.properties.clusterId = clusterId;
+        p.properties.clusterSize = clusterSize;
         venues.push(p);
     });
     clusterPoint.properties.streetLines.forEach(function (p) {
@@ -50,24 +52,22 @@ clusters.forEach(function (clusterPoint) {
     clusterPoint.properties = {
         clusterId: clusterId,
         radius: clusterPoint.properties.radius, //km
-        venuesCount: clusterPoint.properties.venuePoints.length
+        clusterSize: clusterSize //number of venues
     }
 });
 
-if (program.dry) {
-    console.log('clusters', clusters.length);
-    console.log('venues', venues.length);
-    console.log('streets', streets.length);
-}
+console.log('clusters', clusters.length);
+console.log('venues', venues.length);
+console.log('streets', streets.length);
 
 var folder = process.cwd() + '/' + program.out;
+
+console.log(folder + '/' + program.prefix + 'clusters.json');
+console.log(folder + '/' + program.prefix + 'venues.json');
+console.log(folder + '/' + program.prefix + 'streets.json');
 
 if (!program.dry) {
     fs.writeFileSync(folder + '/' + program.prefix + 'clusters.json', JSON.stringify(turf.featurecollection(clusters)));
     fs.writeFileSync(folder + '/' + program.prefix + 'venues.json', JSON.stringify(turf.featurecollection(venues)));
     fs.writeFileSync(folder + '/' + program.prefix + 'streets.json', JSON.stringify(turf.featurecollection(streets)));
-} else {
-    console.log(folder + '/' + program.prefix + 'clusters.json');
-    console.log(folder + '/' + program.prefix + 'venues.json');
-    console.log(folder + '/' + program.prefix + 'streets.json');
 }
