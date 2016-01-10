@@ -7,6 +7,7 @@
 var L = require('mapbox');
 var scale = require('d3-scale');
 var chroma = require('chroma-js');
+var rbush = require('rbush');
 
 var superClass = new L.mapbox.FeatureLayer();
 var clusterColor = require('./cluster-color');
@@ -60,13 +61,46 @@ var Layer = L.mapbox.FeatureLayer.extend({
     initialize: function () {
         this.options.style = this.options.style.bind(this);
         superClass.initialize.apply(this, arguments);
+        this.on('ready', function () {
+            var clusterPoints = this.getGeoJSON().features;
+            this._tree = rbush(
+                clusterPoints.length,
+                [
+                    '.properties.bbox[0]',
+                    '.properties.bbox[1]',
+                    '.properties.bbox[2]',
+                    '.properties.bbox[3]'
+                ]
+            );
+            this._tree.load(clusterPoints);
+        }, this);
+    },
+
+    /**
+     * @returns {ClusterId[]}
+     */
+    getVisibleClusters: function () {
+        if (this._tree && this._map) {
+            //TODO: avaoid duplication
+            var zoom = this._map.getZoom();
+            var size = clusterSize(zoom);
+            var bbox = this._map.getBounds().toBBoxString().split(',').map(Number);
+            return this._tree.search(bbox).filter(function (feature) {
+                return feature.properties.clusterSize > size;
+            }).map(function (feature) {
+                return feature.properties.clusterId;
+            });
+        } else {
+            return [];
+        }
     },
 
     _updateForZoom: function () {
         var zoom = this._map.getZoom();
+        var size = clusterSize(zoom);
         this.setStyle();
         this.setFilter(function (feature) {
-            return feature.properties.clusterSize > clusterSize(zoom);
+            return feature.properties.clusterSize> size;
         });
     }
 });

@@ -12,5 +12,5 @@ var scale = require('d3-scale');
  */
 module.exports = scale
     .scaleLinear()
-    .domain([14, 16])
-    .range([10,  1]);
+    .domain([13, 15])
+    .range([5,  1]);

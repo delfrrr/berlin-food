@@ -8,6 +8,7 @@ var React = require('react');
 var L = require('mapbox');
 var ClusterLayer = require('./cluster-layer');
 var VenueLayer = require('./venue-layer');
+var viewModel = require('./view-model');
 
 require('./index.less');
 
@@ -28,15 +29,25 @@ module.exports = React.createFactory(React.createClass({
         this._initLayers();
     },
 
+    _updateVisibleClusters: function () {
+        var clusterIds = this._clusterLayer.getVisibleClusters();
+        viewModel.set('visibileClusters', clusterIds);
+    },
+
     _initLayers: function () {
-        var clusterLayer = new ClusterLayer('/geojson/processed.clusters.json');
+        this._clusterLayer = new ClusterLayer('/geojson/processed.clusters.json');
+        this._clusterLayer.on('ready', function () {
+            this._updateVisibleClusters();
+            this._map.on('moveend', this._updateVisibleClusters, this);
+        }, this);
         var venueLayer = new VenueLayer('/geojson/processed.venues.json');
-        this._map.addLayer(clusterLayer);
+        this._map.addLayer(this._clusterLayer);
         this._map.addLayer(venueLayer);
     },
 
     _onMapChange: function () {
         var center = this._map.getCenter();
+        // console.log('zoom', this._map.getZoom());
         localStorage.setItem('zoom', this._map.getZoom());
         localStorage.setItem('lat', center.lat);
         localStorage.setItem('lng', center.lng);

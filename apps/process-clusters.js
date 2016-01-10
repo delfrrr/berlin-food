@@ -42,7 +42,6 @@ clusters.forEach(function (clusterPoint) {
     var clusterSize = clusterPoint.properties.venuePoints.length;
     clusterPoint.properties.venuePoints.forEach(function (p) {
         p.properties.clusterId = clusterId;
-        p.properties.clusterSize = clusterSize;
         venues.push(p);
     });
     clusterPoint.properties.streetLines.forEach(function (p) {
@@ -51,6 +50,7 @@ clusters.forEach(function (clusterPoint) {
     });
     clusterPoint.properties = {
         clusterId: clusterId,
+        bbox: clusterPoint.properties.bbox,
         radius: clusterPoint.properties.radius, //km
         clusterSize: clusterSize //number of venues
     }

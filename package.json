@@ -1,6 +1,6 @@
 {
   "name": "foursquare-heatmap",
-  "version": "1.0.45",
+  "version": "1.0.46",
   "description": "foursquare heatmap",
   "main": "index.js",
   "scripts": {
@@ -25,6 +25,7 @@
     "lodash": "^3.10.1",
     "metaphone": "^1.0.1",
     "normalize.css": "^3.0.3",
+    "rbush": "^1.4.2",
     "react": "^0.14.5",
     "react-dom": "^0.14.5",
     "request": "^2.61.0",

@@ -12,15 +12,15 @@ var getRadius = scale.scalePow()
     .range([1, 25]);
 var superClass = new L.mapbox.FeatureLayer();
 var clusterColor = require('./cluster-color');
-var clusterSize = require('./min-cluster-size');
-var Model = require('backbone-model').Model;
 
 /**
  * @type {Model}
  */
-var viewModel = new Model({
-    minClusterSize: +Infinity
-});
+var viewModel = require('./view-model');
+
+var falseFilter = function () {
+    return false;
+}
 
 
 /**
@@ -45,9 +45,7 @@ var Layer = L.mapbox.FeatureLayer.extend({
 
             return new L.Circle(latLng, getRadius(rating));
         },
-        filter: function () {
-            return false;
-        }
+        filter: falseFilter
     },
 
     /**
@@ -55,33 +53,34 @@ var Layer = L.mapbox.FeatureLayer.extend({
      */
     onAdd: function (map) {
         superClass.onAdd.call(this, map);
-        map.on('zoomend', function () {
-            this._updateForZoom(map);
+        this.on('ready', function () {
+            viewModel.on('change:visibileClusters', this._updateFilter, this);
+            this._updateFilter();
         }, this);
-        viewModel.on('change:minClusterSize', function () {
-            this.setFilter(this._filter);
-        }, this);
-        this._updateForZoom(map);
+    },
+
+    _updateFilter: function () {
+        var zoom = this._map.getZoom();
+        if (zoom > 13) {
+            var visibileClusters = viewModel.get('visibileClusters');
+            this.setFilter(this._filter.bind(this, visibileClusters.reduce(function (visibileClusters, id) {
+                visibileClusters[id] = true;
+                return visibileClusters;
+            }, {})));
+        } else if (this.getFilter() !== falseFilter) {
+            this.setFilter(falseFilter);
+        }
     },
 
     /**
+     * @param {Object.<ClusterId, Boolean>} clustersHash
      * @param {Point} feature
      * @return {Booleam}
      */
-    _filter: function (feature) {
-        return feature.properties.clusterSize > viewModel.get('minClusterSize');
-    },
-
-
-    _updateForZoom: function (map) {
-        var zoom = map.getZoom();
-        if (zoom > 12) {
-            viewModel.set('minClusterSize', clusterSize(zoom));
-        } else {
-            viewModel.set('minClusterSize', +Infinity);
-        }
-        this.bringToFront();
+    _filter: function (clustersHash, feature) {
+        return clustersHash[feature.properties.clusterId];
     }
+
 });
 
 module.exports = Layer;
