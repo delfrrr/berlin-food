@@ -7,6 +7,7 @@
 var L = require('mapbox');
 var superClass = new L.mapbox.FeatureLayer();
 var clusterColor = require('./cluster-color');
+var chroma = require('chroma-js');
 
 /**
  * @type {Model}
@@ -26,7 +27,9 @@ var Layer = L.mapbox.FeatureLayer.extend({
 
     options: {
         style: function (feature) {
-            var color = clusterColor(feature.properties.clusterId);
+            var color = chroma(
+                clusterColor(feature.properties.clusterId)
+            ).brighten(1).css();
             return {
                 color: color,
                 weight: 2,

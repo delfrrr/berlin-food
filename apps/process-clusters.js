@@ -87,6 +87,11 @@ clusters.forEach(function (clusterPoint) {
     }
 });
 
+//smaller on top
+venues.sort(function (p1, p2) {
+    return (p2.properties.venue.rating || 0) - (p1.properties.venue.rating || 0);
+})
+
 console.log('clusters', clusters.length);
 console.log('venues', venues.length);
 console.log('streets', streets.length);
