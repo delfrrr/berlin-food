@@ -19,7 +19,11 @@ var clusterColor = require('./cluster-color');
  */
 var clusterOpacity = scale.scaleLinear().domain([1, 14, 17, 19]).range([0.8, 0.8, 0.3, 0]);
 
-var clusterSize = require('./min-cluster-size');
+var clusterRating = require('./cluster-rating');
+
+function filter(rating, feature) {
+    return feature.properties.clusterRating >= rating;
+}
 
 /**
  * @class
@@ -36,7 +40,7 @@ var Layer = L.mapbox.FeatureLayer.extend({
                 stroke: false,
                 fill: true,
                 fillOpacity: clusterOpacity(zoom),
-                clickable: false
+                clickable: true
             }
         },
         pointToLayer: function (feature, latLng) {
@@ -75,6 +79,9 @@ var Layer = L.mapbox.FeatureLayer.extend({
             );
             this._tree.load(clusterPoints);
         }, this);
+        this.on('click', function (e) {
+            console.log(e.layer.feature.properties);
+        });
     },
 
     /**
@@ -84,13 +91,13 @@ var Layer = L.mapbox.FeatureLayer.extend({
         if (this._tree && this._map) {
             //TODO: avaoid duplication
             var zoom = this._map.getZoom();
-            var size = clusterSize(zoom);
+            var rating = clusterRating(zoom);
             var bbox = this._map.getBounds().toBBoxString().split(',').map(Number);
-            return this._tree.search(bbox).filter(function (feature) {
-                return feature.properties.clusterSize > size;
-            }).map(function (feature) {
-                return feature.properties.clusterId;
-            });
+            return this._tree.search(bbox)
+                .filter(filter.bind(null, rating))
+                .map(function (feature) {
+                    return feature.properties.clusterId;
+                });
         } else {
             return [];
         }
@@ -98,11 +105,9 @@ var Layer = L.mapbox.FeatureLayer.extend({
 
     _updateForZoom: function () {
         var zoom = this._map.getZoom();
-        var size = clusterSize(zoom);
+        var rating = clusterRating(zoom);
         this.setStyle();
-        this.setFilter(function (feature) {
-            return feature.properties.clusterSize> size;
-        });
+        this.setFilter(filter.bind(null, rating));
     }
 });
 
