@@ -16,7 +16,7 @@ require('./index.less');
 module.exports = React.createFactory(React.createClass({
     componentDidMount: function () {
         var component = this;
-        var zoom = Number(localStorage.getItem('zoom'));
+        var zoom = Math.floor(Number(localStorage.getItem('zoom')));
         var center = [
             Number(localStorage.getItem('lat')),
             Number(localStorage.getItem('lng'))

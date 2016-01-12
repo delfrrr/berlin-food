@@ -21,10 +21,13 @@ program
 program.parse(process.argv);
 
 app.use(webpackMiddleware(webpack({
-    entry: require.resolve('../components/map-page'),
+    entry: {
+        'map-page': require.resolve('../components/map-page'),
+        'map-gl-page': require.resolve('../components/map-gl-page')
+    },
     output: {
         path: '/',
-        filename: '/components/map-page.js',
+        filename: '/components/[name].js',
         pathinfo: true
     },
     module: {
@@ -42,7 +45,8 @@ app.use(webpackMiddleware(webpack({
     externals: {
         'react': 'React',
         'react-dom': 'ReactDOM',
-        'mapbox': 'L'
+        'mapbox': 'L',
+        'mapboxgl': 'mapboxgl'
     }
 }), {
     publicPath: '/'
@@ -84,6 +88,46 @@ app.get('/', function (req, res) {
             }),
             R.DOM.script({
                 src: '/components/map-page.js'
+            })
+        )
+    )));
+});
+
+app.get('/gl', function (req, res) {
+    res.type('html');
+    res.send(RDS.renderToStaticMarkup(R.DOM.html(
+        null,
+        R.DOM.head(
+            null,
+            R.DOM.title(null, 'Map box gl demo'),
+            R.DOM.meta({
+                name: 'viewport',
+                content: 'width=device-width, initial-scale=1, user-scalable=no'
+            }),
+            R.DOM.link({
+                rel: 'stylesheet',
+                href: '//api.tiles.mapbox.com/mapbox-gl-js/v0.12.2/mapbox-gl.css'
+            })
+        ),
+        R.DOM.body(
+            null,
+            R.DOM.script({
+                src: '//api.tiles.mapbox.com/mapbox-gl-js/v0.12.2/mapbox-gl.js'
+            }),
+            R.DOM.script({
+                dangerouslySetInnerHTML: {
+                    __html: 'mapboxgl.accessToken = \'' + MAP_BOX_TOKEN + '\';'
+                }
+            }),
+            R.DOM.script({}, 'window.__DEV__ = true;'),
+            R.DOM.script({
+                src: 'https://fb.me/react-0.14.3.js'
+            }),
+            R.DOM.script({
+                src: 'https://fb.me/react-dom-0.14.3.js'
+            }),
+            R.DOM.script({
+                src: '/components/map-gl-page.js'
             })
         )
     )));
