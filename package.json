@@ -1,6 +1,6 @@
 {
   "name": "foursquare-heatmap",
-  "version": "1.0.50",
+  "version": "1.0.51",
   "description": "foursquare heatmap",
   "main": "index.js",
   "scripts": {
@@ -16,6 +16,7 @@
   "dependencies": {
     "backbone-model": "^1.0.9",
     "bluebird": "^2.9.34",
+    "browser-request": "^0.3.3",
     "chroma-js": "^1.1.1",
     "classnames": "^2.2.1",
     "commander": "^2.8.1",
