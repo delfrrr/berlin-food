@@ -6,7 +6,7 @@
 
 var L = require('mapbox');
 var superClass = new L.mapbox.FeatureLayer();
-var clusterColor = require('./cluster-color');
+var clusterColor = require('./../../lib/cluster-color');
 var chroma = require('chroma-js');
 
 /**

@@ -12,7 +12,7 @@ var getRadius = scale.scalePow()
     .domain([1, 9])
     .range([1, 25]);
 var superClass = new L.mapbox.FeatureLayer();
-var clusterColor = require('./cluster-color');
+var clusterColor = require('./../../lib/cluster-color');
 
 /**
  * @type {Model}

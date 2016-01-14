@@ -10,7 +10,7 @@ var chroma = require('chroma-js');
 var rbush = require('rbush');
 
 var superClass = new L.mapbox.FeatureLayer();
-var clusterColor = require('./cluster-color');
+var clusterColor = require('./../../lib/cluster-color');
 
 /**
  * @type {function}
