@@ -69,12 +69,16 @@ clusters.forEach(function (clusterPoint) {
     var clusterId = clusterPoint.properties.clusterId;
     var clusterSize = clusterPoint.properties.venuePoints.length;
     var ratingCounts = getRatingCounts(clusterPoint.properties.venuePoints);
+    var clusterRating = getClusterRating(ratingCounts);
     clusterPoint.properties.venuePoints.forEach(function (p) {
         p.properties.clusterId = clusterId;
+        p.properties.clusterRating = clusterRating;
+        p.properties.venueId = p.properties.venue.id;
         venues.push(p);
     });
     clusterPoint.properties.streetLines.forEach(function (p) {
         p.properties.clusterId = clusterId;
+        p.properties.clusterRating = clusterRating;
         streets.push(p);
     });
     clusterPoint.properties = {

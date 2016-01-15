@@ -6,8 +6,8 @@
 var React = require('react');
 var mapboxgl = require('mapboxgl');
 var clusters = require('./clusters');
+var venues = require('./venues');
 require('./index.less');
-
 
 module.exports = React.createFactory(React.createClass({
 
@@ -30,11 +30,14 @@ componentDidMount: function () {
 
     var mapPromise = new Promise(function (resolve) {
         component._map.on('load', function () {
+            //TODO: remove permanently from style
+            component._map.removeLayer('poi-scalerank4-l1');
             resolve(component._map);
         });
     });
 
     clusters(mapPromise);
+    venues(mapPromise);
 },
 
 _onMapChange: function () {
