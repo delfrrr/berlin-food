@@ -91,13 +91,20 @@ clusters.forEach(function (clusterPoint) {
     }
 });
 
+console.log('not uniq venues', venues.length);
+
+venues = _.uniqBy(venues, function (vp) {
+    return vp.properties.venue.id;
+});
+
 //smaller on top
 venues.sort(function (p1, p2) {
     return (p2.properties.venue.rating || 0) - (p1.properties.venue.rating || 0);
 })
 
-console.log('clusters', clusters.length);
+
 console.log('venues', venues.length);
+console.log('clusters', clusters.length);
 console.log('streets', streets.length);
 
 var folder = process.cwd() + '/' + program.out;

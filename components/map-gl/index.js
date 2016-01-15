@@ -20,7 +20,7 @@ componentDidMount: function () {
     ];
     this._map = new mapboxgl.Map({
         container: this.refs.mapNode,
-        style: 'mapbox://styles/mapbox/streets-v8',
+        style: 'mapbox://styles/mapbox/emerald-v8',
         center: center,
         zoom: zoom
     });
@@ -30,8 +30,6 @@ componentDidMount: function () {
 
     var mapPromise = new Promise(function (resolve) {
         component._map.on('load', function () {
-            //TODO: remove permanently from style
-            component._map.removeLayer('poi-scalerank4-l1');
             resolve(component._map);
         });
     });

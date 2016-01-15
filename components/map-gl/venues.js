@@ -9,6 +9,7 @@ var clusterColor = require('./../../lib/cluster-color');
 var getMinZoomLevel = require('./min-zoom-level');
 var chroma = require('chroma-js');
 var scale = require('d3-scale');
+var _ = require('lodash');
 //TODO: reuse
 var getRadius = scale.scalePow()
     .exponent(3)
@@ -44,35 +45,46 @@ module.exports = function (mapPromise) {
             type: 'geojson',
             data: result[0]
         });
+        var venueClasses = _.groupBy(venuePoints, function (p) {
+            var props = p.properties;
+            var venue = props.venue;
+            var rating = Number(((venue.rating || 5)).toFixed(1));
+            var color = clusterColor(props.clusterId);
+            var radius = Math.floor(getRadius(rating));
+            var brightnes = getBrightnes(rating);
+            if (brightnes) {
+                color = chroma(color).brighten(brightnes).css()
+            }
+            var minzoom = getMinZoomLevel(props.clusterRating);
+            if (minzoom < 12) {
+                minzoom = 12;
+            }
+            minzoom = minzoom.toFixed(1);
+            return [
+                color,
+                radius,
+                minzoom
+            ].join('&');
+        });
         map.batch(function (batch) {
-            venuePoints.forEach(function (p, k) {
-                var props = p.properties;
-                var venue = props.venue;
-                var minzoom = getMinZoomLevel(props.clusterRating);
-                if (minzoom < 12) {
-                    minzoom = 12;
-                }
-                var rating = venue.rating || 5;
-                var color = clusterColor(props.clusterId);
-                var radius = getRadius(rating);
-                var brightnes = getBrightnes(rating);
-
-                if (brightnes) {
-                    color = chroma(color).brighten(brightnes).css()
-                }
-
+            _.forIn(venueClasses, function (points, classStr) {
+                var classAr = classStr.split('&');
+                var venueIds = points.map(function (p) {
+                    return p.properties.venueId;
+                });
+                var radius = Number(classAr[1]);
                 batch.addLayer({
-                    id: ['venue', venue.id, k].join('-'),
+                    id: ['venue'].concat(classAr).join('-'),
                     source: 'venues',
                     type: 'circle',
-                    minzoom: minzoom,
+                    minzoom: Number(classAr[2]),
                     paint: {
-                        'circle-color': color,
+                        'circle-color': classAr[0],
                         'circle-radius': {
                             stops: [[13, 3], [14, 3],  [17, radius], [20, radius]]
                         }
                     },
-                    filter: ['==', 'venueId', venue.id]
+                    filter: ['in', 'venueId'].concat(venueIds)
                 });
             });
         });
