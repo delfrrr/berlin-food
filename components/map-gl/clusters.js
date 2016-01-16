@@ -9,6 +9,7 @@ var chroma = require('chroma-js');
 var _ = require('lodash');
 var clusterColor = require('./../../lib/cluster-color');
 var getMinZoomLevel = require('./min-zoom-level');
+var CLASS_SEPARATOR = '&';
 var R = 6371;//km
 
 /**
@@ -54,36 +55,56 @@ module.exports = function (mapPromise) {
             data: result[0]
         });
 
+        clusterPoints.filter(function (cp) {
+            return cp.properties.radius;
+        });
+
+        var clusterClasses = _.groupBy(clusterPoints, function (cp) {
+            var clusterId = cp.properties.clusterId;
+            var minzoom = Math.floor(getMinZoomLevel(cp.properties.clusterRating));
+            var color = chroma(clusterColor(clusterId)).brighten(1).css();
+            var radius = Number(cp.properties.radius.toFixed(3));
+            return [
+                color,
+                radius,
+                minzoom
+            ].join(CLASS_SEPARATOR);
+        });
+
         map.batch(function (batch) {
-            clusterPoints.forEach(function (cp) {
-                var clusterId = cp.properties.clusterId;
-                if (cp.properties.radius) {
-                    batch.addLayer({
-                        id: 'cluster-' + clusterId,
-                        source: 'clusters',
-                        type: 'circle',
-                        minzoom: getMinZoomLevel(cp.properties.clusterRating),
-                        paint: {
-                            'circle-color': chroma(clusterColor(clusterId)).brighten(1).css(),
-                            'circle-opacity': {
-                                stops: [[1, 0.8], [14, 0.8], [17, 0.3], [19, 0]]
-                            },
-                            'circle-blur': {
-                                base: 1,
-                                stops: distanceZoomScale.map(function (stop) {
-                                    return [stop[0], 1 / stop[1] / cp.properties.radius]
-                                })
-                            },
-                            'circle-radius': {
-                                base: 2,
-                                stops: distanceZoomScale.map(function (stop) {
-                                    return[stop[0], stop[1] * cp.properties.radius]
-                                })
-                            }
+            _.forIn(clusterClasses, function (points, classStr) {
+                var classAr = classStr.split(CLASS_SEPARATOR);
+                var radius = Number(classAr[1]);
+                var minzoom = Number(classAr[2]);
+                var color = classAr[0];
+                var clusterIds = points.map(function (cp) {
+                    return cp.properties.clusterId;
+                });
+                batch.addLayer({
+                    id: 'cluster-' + classStr,
+                    source: 'clusters',
+                    type: 'circle',
+                    minzoom: minzoom,
+                    paint: {
+                        'circle-color': color,
+                        'circle-opacity': {
+                            stops: [[1, 0.8], [14, 0.8], [17, 0.3], [19, 0]]
                         },
-                        filter: ['==', 'clusterId', clusterId]
-                    }, 'housenum-label');
-                }
+                        'circle-blur': {
+                            base: 1,
+                            stops: distanceZoomScale.map(function (stop) {
+                                return [stop[0], 1 / stop[1] / radius]
+                            })
+                        },
+                        'circle-radius': {
+                            base: 2,
+                            stops: distanceZoomScale.map(function (stop) {
+                                return[stop[0], stop[1] * radius]
+                            })
+                        }
+                    },
+                    filter: ['in', 'clusterId'].concat(clusterIds)
+                }, 'housenum-label');
             });
         });
     });

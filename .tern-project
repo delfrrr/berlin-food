@@ -9,6 +9,6 @@
   "plugins": {
     "complete_strings": {},
     "node": {},
-    "requirejs": {}
+    "doc_comment": {}
   }
 }
