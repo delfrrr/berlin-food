@@ -20,7 +20,7 @@ componentDidMount: function () {
     ];
     this._map = new mapboxgl.Map({
         container: this.refs.mapNode,
-        style: 'mapbox://styles/mapbox/emerald-v8',
+        style: 'mapbox://styles/delfrrr/cijgamnno000xbolxebup2s46',
         center: center,
         zoom: zoom
     });

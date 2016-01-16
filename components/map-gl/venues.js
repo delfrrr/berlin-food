@@ -56,8 +56,8 @@ module.exports = function (mapPromise) {
                 color = chroma(color).brighten(brightnes).css()
             }
             var minzoom = getMinZoomLevel(props.clusterRating);
-            if (minzoom < 12) {
-                minzoom = 12;
+            if (minzoom < 13) {
+                minzoom = 13;
             }
             minzoom = minzoom.toFixed(1);
             return [
