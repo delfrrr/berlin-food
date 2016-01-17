@@ -9,6 +9,8 @@ var chroma = require('chroma-js');
 var _ = require('lodash');
 var clusterColor = require('./../../lib/cluster-color');
 var getMinZoomLevel = require('./min-zoom-level');
+var scale = require('d3-scale');
+var getOpacity = scale.scaleLinear().domain([1, 14, 17, 19]).range([0.8, 0.8, 0.3, 0]);
 var CLASS_SEPARATOR = '&';
 var R = 6371;//km
 
@@ -84,11 +86,18 @@ module.exports = function (mapPromise) {
                     id: 'cluster-' + classStr,
                     source: 'clusters',
                     type: 'circle',
-                    minzoom: minzoom,
+                    minzoom: minzoom - 1,
                     paint: {
                         'circle-color': color,
                         'circle-opacity': {
-                            stops: [[1, 0.8], [14, 0.8], [17, 0.3], [19, 0]]
+                            //TODO use only zoom elevels from domain
+                            stops: _.range(1, 20).map(function (z) {
+                                if (z < minzoom) {
+                                    return [z, 0]
+                                } else {
+                                    return [z, getOpacity(z)]
+                                }
+                            })
                         },
                         'circle-blur': {
                             base: 1,
