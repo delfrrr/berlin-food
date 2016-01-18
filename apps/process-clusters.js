@@ -15,6 +15,7 @@ program
     .option('--out [string]', 'output folder', String)
     .option('--prefix [string]', 'output file prefix', 'processed.')
     .option('--dry [boolean]', 'do not output json', false)
+    .option('--rating [number]', 'do not output json', 4)
     .description('process clusters, agregade stats');
 
 program.parse(process.argv);
@@ -29,7 +30,11 @@ function getClusterRating(ratingCounts) {
     _.forIn(ratingCounts, function (count, rating) {
         pAr.push(Number(rating) * (1 - Math.pow(0.5, count)));
     });
-    return Number(Math.max.apply(Math, pAr).toFixed(1)) || 0;
+    var rating = Number(Math.max.apply(Math, pAr).toFixed(1));
+    if (rating < 0) {
+        rating = 0;
+    }
+    return  rating;
 }
 
 /**
@@ -48,10 +53,10 @@ function getRatingCounts(venuePoints) {
 /**
  * @type {Point[]}
  */
-var clusters = require(process.cwd() + '/' + program.clusters).features;
+var allClusters = require(process.cwd() + '/' + program.clusters).features;
 
 //smaller cluster should appear on top
-clusters.sort(function (c1, c2) {
+allClusters.sort(function (c1, c2) {
     return c2.properties.radius - c1.properties.radius;
 });
 
@@ -65,34 +70,45 @@ var venues = [];
  */
 var streets = [];
 
-clusters.forEach(function (clusterPoint) {
+/**
+ * @type {Point[]}
+ */
+var clusters = [];
+
+allClusters.forEach(function (clusterPoint) {
     var clusterId = clusterPoint.properties.clusterId;
     var clusterSize = clusterPoint.properties.venuePoints.length;
     var ratingCounts = getRatingCounts(clusterPoint.properties.venuePoints);
     var clusterRating = getClusterRating(ratingCounts);
+    if (clusterRating < program.rating) {
+        return;
+    }
     clusterPoint.properties.venuePoints.forEach(function (p) {
         p.properties.clusterId = clusterId;
         p.properties.clusterRating = clusterRating;
         p.properties.venueId = p.properties.venue.id;
         venues.push(p);
     });
-    clusterPoint.properties.streetLines.forEach(function (p) {
-        p.properties.clusterId = clusterId;
-        p.properties.clusterRating = clusterRating;
-        streets.push(p);
-    });
+    if (clusterPoint.properties.radius) {
+        clusterPoint.properties.streetLines.forEach(function (p) {
+            p.properties.streetId = [clusterId, p.properties.way.id].join('-');
+            p.properties.clusterId = clusterId;
+            p.properties.clusterRating = clusterRating;
+            streets.push(p);
+        });
+    }
     clusterPoint.properties = {
         clusterId: clusterId,
         ratingCounts: ratingCounts,
-        clusterRating: getClusterRating(ratingCounts),
+        clusterRating: clusterRating,
         bbox: clusterPoint.properties.bbox,
         radius: clusterPoint.properties.radius, //km
         clusterSize: clusterSize //number of venues
     }
+    clusters.push(clusterPoint)
 });
 
-console.log('not uniq venues', venues.length);
-
+//TODO: somehow we have few duplicates
 venues = _.uniqBy(venues, function (vp) {
     return vp.properties.venue.id;
 });

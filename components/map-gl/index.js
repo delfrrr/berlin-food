@@ -7,6 +7,7 @@ var React = require('react');
 var mapboxgl = require('mapboxgl');
 var clusters = require('./clusters');
 var venues = require('./venues');
+var streets = require('./streets');
 require('./index.less');
 
 module.exports = React.createFactory(React.createClass({
@@ -36,6 +37,7 @@ componentDidMount: function () {
 
     clusters(mapPromise);
     venues(mapPromise);
+    streets(mapPromise);
 },
 
 _onMapChange: function () {

@@ -84,7 +84,7 @@ module.exports = function (mapPromise) {
                         }
                     },
                     filter: ['in', 'venueId'].concat(venueIds)
-                });
+                }, 'rail-label');
             });
         });
     });
