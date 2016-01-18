@@ -87,6 +87,7 @@ allClusters.forEach(function (clusterPoint) {
         p.properties.clusterId = clusterId;
         p.properties.clusterRating = clusterRating;
         p.properties.venueId = p.properties.venue.id;
+        p.properties.name = p.properties.venue.name;
         venues.push(p);
     });
     if (clusterPoint.properties.radius) {
