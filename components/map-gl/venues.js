@@ -9,6 +9,7 @@ var clusterColor = require('./../../lib/cluster-color');
 var getMinZoomLevel = require('./min-zoom-level');
 var chroma = require('chroma-js');
 var scale = require('d3-scale');
+var viewModel = require('./view-model');
 var _ = require('lodash');
 var CLASS_SEPARATOR = '&';
 var LABEL_SIZE = 12;
@@ -107,10 +108,11 @@ function addCircleClasses(batch, classes) {
         });
         var radius = Number(classAr[1]);
         batch.addLayer({
-            id: ['venue'].concat(classAr).join('-'),
+            id: ['venue-circle'].concat(classAr).join('-'),
             source: 'venues',
             type: 'circle',
             minzoom: Number(classAr[2]),
+            interactive: true,
             paint: {
                 'circle-color': classAr[0],
                 'circle-radius': {
@@ -177,6 +179,23 @@ module.exports = function (mapPromise) {
         map.batch(function (batch) {
             addCircleClasses(batch, venueClasses);
             addLabelClasses(batch, vanueLabelClasses);
+        });
+        viewModel.on('change:selectedVenueId', function () {
+            console.log('change:selectedVenueId');
+        });
+        map.on('mousemove', function (e) {
+            map.featuresAt(e.point, {
+                radius: 20
+            }, function (err, features) {
+                if (features && features.length) {
+                    var targetObjects = features.filter(function (f) {
+                        return f.layer.id.match('venue-circle');
+                    });
+                    if (targetObjects.length) {
+                        viewModel.set('selectedVenueId', targetObjects[0].properties.venueId);
+                    }
+                }
+            });
         });
     });
 
