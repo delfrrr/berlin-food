@@ -107,20 +107,35 @@ function addCircleClasses(batch, classes) {
             return p.properties.venueId;
         });
         var radius = Number(classAr[1]);
-        batch.addLayer({
-            id: ['venue-circle'].concat(classAr).join('-'),
+        var id = ['venue-circle'].concat(classAr).join('-');
+        var filter = ['in', 'venueId'].concat(venueIds);
+        var layer = {
             source: 'venues',
             type: 'circle',
             minzoom: Number(classAr[2]),
             interactive: true,
             paint: {
-                'circle-color': classAr[0],
                 'circle-radius': {
                     stops: [[13, 3], [14, 3],  [17, radius], [20, radius]]
                 }
-            },
-            filter: ['in', 'venueId'].concat(venueIds)
-        }, 'rail-label');
+            }
+        };
+        //visible layer
+        batch.addLayer(_.defaultsDeep({}, layer, {
+            id: id,
+            filter: filter,
+            paint: {
+                'circle-color': classAr[0]
+            }
+        }), 'rail-label');
+        //selection layer
+        batch.addLayer(_.defaultsDeep({}, layer, {
+            id: 'select-' + id,
+            filter: ['in', 'venueId', 'none'],
+            paint: {
+                'circle-color': chroma(classAr[0]).darken(1).css()
+            }
+        }), 'rail-label');
     });
 }
 
@@ -180,8 +195,16 @@ module.exports = function (mapPromise) {
             addCircleClasses(batch, venueClasses);
             addLabelClasses(batch, vanueLabelClasses);
         });
-        viewModel.on('change:selectedVenueId', function () {
-            console.log('change:selectedVenueId');
+        viewModel.on('change:selectedVenueTarget', function () {
+            var venueTarget = this.get('selectedVenueTarget');
+            if (venueTarget) {
+                var layer = venueTarget.layer;
+                var selectId  = 'select-' + layer.id;
+                map.setFilter(
+                    selectId,
+                    ['in', 'venueId', venueTarget.properties.venueId]
+                );
+            }
         });
         map.on('mousemove', function (e) {
             map.featuresAt(e.point, {
@@ -189,10 +212,10 @@ module.exports = function (mapPromise) {
             }, function (err, features) {
                 if (features && features.length) {
                     var targetObjects = features.filter(function (f) {
-                        return f.layer.id.match('venue-circle');
+                        return f.layer.id.match(/^venue-circle/);
                     });
                     if (targetObjects.length) {
-                        viewModel.set('selectedVenueId', targetObjects[0].properties.venueId);
+                        viewModel.set('selectedVenueTarget', targetObjects[0]);
                     }
                 }
             });
