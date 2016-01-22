@@ -113,7 +113,6 @@ function addCircleClasses(batch, classes) {
             source: 'venues',
             type: 'circle',
             minzoom: Number(classAr[2]),
-            interactive: true,
             paint: {
                 'circle-radius': {
                     stops: [[13, 3], [14, 3],  [17, radius], [20, radius]]
@@ -124,6 +123,7 @@ function addCircleClasses(batch, classes) {
         batch.addLayer(_.defaultsDeep({}, layer, {
             id: id,
             filter: filter,
+            interactive: true,
             paint: {
                 'circle-color': classAr[0]
             }
@@ -197,6 +197,7 @@ module.exports = function (mapPromise) {
         });
         viewModel.on('change:selectedVenueTarget', function () {
             var venueTarget = this.get('selectedVenueTarget');
+            var prevVenueTarget = this._previousAttributes.selectedVenueTarget;
             if (venueTarget) {
                 var layer = venueTarget.layer;
                 var selectId  = 'select-' + layer.id;
@@ -205,18 +206,28 @@ module.exports = function (mapPromise) {
                     ['in', 'venueId', venueTarget.properties.venueId]
                 );
             }
+            if (prevVenueTarget && prevVenueTarget.layer.id !== selectId) {
+                var prevSelectId = 'select-' + prevVenueTarget.layer.id;
+                map.setFilter(
+                    prevSelectId,
+                    ['in', 'venueId', 'none']
+                );
+            }
         });
         map.on('mousemove', function (e) {
             map.featuresAt(e.point, {
-                radius: 20
+                radius: 30
             }, function (err, features) {
-                if (features && features.length) {
-                    var targetObjects = features.filter(function (f) {
+                var targetObjects;
+                if (features &&
+                    features.length &&
+                    (targetObjects = features.filter(function (f) {
                         return f.layer.id.match(/^venue-circle/);
-                    });
-                    if (targetObjects.length) {
-                        viewModel.set('selectedVenueTarget', targetObjects[0]);
-                    }
+                    })).length
+                ) {
+                    viewModel.set('selectedVenueTarget', targetObjects[0]);
+                } else {
+                    viewModel.set('selectedVenueTarget', null);
                 }
             });
         });
