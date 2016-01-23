@@ -8,6 +8,7 @@ var request = require('browser-request');
 var clusterColor = require('./../../lib/cluster-color');
 var getMinZoomLevel = require('./min-zoom-level');
 var chroma = require('chroma-js');
+var mapboxgl  = require('mapboxgl');
 var scale = require('d3-scale');
 var viewModel = require('./view-model');
 var _ = require('lodash');
@@ -54,6 +55,17 @@ var venuesPromise = new Promise(function (resolve, reject) {
         }
     });
 });
+
+/**
+ * @param {mapboxgl.Point} p1
+ * @param {mapboxgl.Point} p2
+ * @return {Number} pixel distance
+ */
+function pointDistance(p1, p2) {
+    var dx = p1.x - p2.x;
+    var dy = p1.y - p2.y;
+    return Math.sqrt(dx * dx + dy * dy);
+}
 
 /**
  * @param {Point[]} venuePoints
@@ -147,8 +159,13 @@ function addLabelClasses(batch, classes) {
     _.forIn(classes, function (points, classStr) {
         var classAr = classStr.split(CLASS_SEPARATOR);
         var radius = Number(classAr[0]);
-        var venueIds = points.map(function (p) {
-            return p.properties.venueId;
+        var venueIds = [];
+        points.forEach(function (p) {
+            venueIds.push(p.properties.venueId);
+            p.properties.lngLat = new mapboxgl.LngLat(
+                p.geometry.coordinates[0],
+                p.geometry.coordinates[1]
+            );
         });
         batch.addLayer({
             id: 'venues-labels-' + classStr,
@@ -216,13 +233,22 @@ module.exports = function (mapPromise) {
         });
         map.on('mousemove', function (e) {
             map.featuresAt(e.point, {
-                radius: 30
+                radius: 25
             }, function (err, features) {
                 var targetObjects;
                 if (features &&
                     features.length &&
                     (targetObjects = features.filter(function (f) {
-                        return f.layer.id.match(/^venue-circle/);
+                        return (
+                            f.layer.id.match(/^venue-circle/) &&
+                            f.properties.lngLat &&
+                            (
+                                pointDistance(
+                                    map.project(f.properties.lngLat),
+                                    e.point
+                                ) <= f.layer.paint['circle-radius']
+                            )
+                        );
                     })).length
                 ) {
                     viewModel.set('selectedVenueTarget', targetObjects[0]);
