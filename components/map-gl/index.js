@@ -8,6 +8,7 @@ var mapboxgl = require('mapboxgl');
 var clusters = require('./clusters');
 var venues = require('./venues');
 var streets = require('./streets');
+var panel = require('../panel');
 require('./index.less');
 
 module.exports = React.createFactory(React.createClass({
@@ -48,14 +49,17 @@ _onMapChange: function () {
 },
 
 render: function () {
-     return React.DOM.div(
-         {
-             className: 'map'
-         },
-         React.DOM.div({
-             className: 'map__map-node',
-             ref: 'mapNode'
-         })
-     );
+    return React.DOM.div(
+        {
+            className: 'map'
+        },
+        React.DOM.div({
+            className: 'map__map-node',
+            ref: 'mapNode'
+        }),
+        panel({
+            className: 'map__panel'
+        })
+    );
  }
 }));
