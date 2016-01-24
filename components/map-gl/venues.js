@@ -226,9 +226,15 @@ module.exports = function (mapPromise) {
             data: result[0]
         });
         var venueClasses = getVenueCircleClasses(venuePoints);
-        var vanueLabelClasses = getVenueLabelClasses(venuePoints.filter(function (p) {
+        var goodVenues = venuePoints.filter(function (p) {
             return p.properties.venue.rating >= MIN_LABEL_RATING;
-        }));
+        });
+        var vanueLabelClasses = getVenueLabelClasses(goodVenues);
+
+        //set max user count
+        viewModel.set('maxUserCount', Math.max.apply(Math, goodVenues.map(function (p) {
+            return p.properties.venue.stats.usersCount;
+        })));
         map.batch(function (batch) {
             addCircleClasses(batch, venueClasses);
             addLabelClasses(batch, vanueLabelClasses);
@@ -240,7 +246,7 @@ module.exports = function (mapPromise) {
             drawHover(ctx, canvas, map);
         });
         map.on('move', function () {
-            drawHover(ctx, canvas, map);
+            viewModel.set('selectedVenueTarget', null);
         });
         map.on('mousemove', function (e) {
             map.featuresAt(e.point, {
@@ -263,8 +269,6 @@ module.exports = function (mapPromise) {
                     })).length
                 ) {
                     viewModel.set('selectedVenueTarget', targetObjects[0]);
-                } else {
-                    // viewModel.set('selectedVenueTarget', null);
                 }
             });
         });

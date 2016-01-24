@@ -1,0 +1,38 @@
+@import "../../node_modules/lesshat/build/lesshat.less";
+
+.venue-bar
+{
+    position: absolute;
+    bottom: 0px;
+    height: calc(100% - 20px);
+    width: 33.33%;
+    & > *,
+    &__value
+    {
+        position: absolute;
+        left: 0;
+        right: 0;
+        text-align: center;
+    }
+
+    &__value
+    {
+        line-height: 20px;
+        top: -20px;
+    }
+
+    &__bar
+    {
+        bottom: 0;
+        transition: all 200ms;
+        padding-bottom: 20px;
+        background-color: rgb(149, 155, 158);
+    }
+    &__label
+    {
+        bottom: 0;
+        font-size: 12px;
+        line-height: 20px;
+        color: white;
+    }
+}

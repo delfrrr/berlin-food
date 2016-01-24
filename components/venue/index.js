@@ -5,6 +5,7 @@
 'use strict';
 var React = require('react');
 var classnames = require('classnames');
+var barComponent = require('./bar');
 require('./index.less');
 
 var Component = React.createClass({
@@ -15,8 +16,8 @@ var Component = React.createClass({
         var categoriesText;
         var phone = venue.contact && venue.contact.phone;
         var address = venue.location.address;
-        // var price = venue.price && venue.price.message;
-        // var rating = venue.rating;
+        var rating = venue.rating;
+        var price = venue.price || {};
         var website = venue.url;
         if (categories) {
             icon = categories && categories[0] && categories[0].icon;
@@ -63,19 +64,36 @@ var Component = React.createClass({
                     className: 'venue__website'
                 },
                 website
-            )//,
-            // price && React.DOM.div(
-            //     {
-            //         className: 'venue__price'
-            //     },
-            //     price
-            // ),
-            // rating && React.DOM.div(
-            //     {
-            //         className: 'venue__rating'
-            //     },
-            //     rating
-            // )
+            ),
+            React.DOM.div(
+                {
+                    className: 'venue__bars'
+                },
+                barComponent({
+                    maxValue: 5,
+                    className: 'venue__bar',
+                    value: rating - 5,
+                    valueTitle: rating,
+                    color: '#' + venue.ratingColor,
+                    label: 'Rating'
+                }),
+                barComponent({
+                    maxValue: 3,
+                    className: 'venue__bar',
+                    value: price.tier,
+                    valueTitle: price.message,
+                    color: '#' + venue.ratingColor,
+                    label: 'Price'
+                }),
+                barComponent({
+                    maxValue: this.props.maxUserCount,
+                    className: 'venue__bar',
+                    value: venue.stats.usersCount,
+                    valueTitle: venue.stats.usersCount,
+                    color: '#' + venue.ratingColor,
+                    label: 'Users'
+                })
+            )
         );
     }
 });

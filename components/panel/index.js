@@ -30,7 +30,8 @@ var Component = React.createClass({
             selectedVenueTarget &&
             venueComponent({
                 className: 'panel__venue',
-                venue: venue
+                venue: venue,
+                maxUserCount: viewModel.get('maxUserCount')
             }) ||
             React.DOM.div({
                 className: 'panel__about'
