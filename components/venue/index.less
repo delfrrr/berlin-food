@@ -1,0 +1,43 @@
+@import "../../node_modules/lesshat/build/lesshat.less";
+
+.venue
+{
+
+    &__icon
+    {
+        background-color: rgb(41, 82, 204);
+        .size(32px);
+        background-repeat: no-repeat;
+        background-position: center;
+        border-radius: 16px;
+        float: left;
+    }
+
+    &__name,
+    &__phone,
+    &__address,
+    &__website,
+    // &__price,
+    // &__rating,
+    &__category
+    {
+        margin-left: 42px;
+    }
+
+    &__address
+    {
+        clear: left;
+        margin-top: 10px;
+    }
+
+    &__phone
+    {
+        margin-left: 42px - 10px;
+    }
+
+    &__category
+    {
+        color: rgb(149, 155, 158);
+        font-size: 10px;
+    }
+}

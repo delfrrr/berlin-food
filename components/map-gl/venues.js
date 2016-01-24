@@ -264,7 +264,7 @@ module.exports = function (mapPromise) {
                 ) {
                     viewModel.set('selectedVenueTarget', targetObjects[0]);
                 } else {
-                    viewModel.set('selectedVenueTarget', null);
+                    // viewModel.set('selectedVenueTarget', null);
                 }
             });
         });
