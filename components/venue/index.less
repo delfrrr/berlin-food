@@ -42,13 +42,21 @@
         font-size: 10px;
     }
 
+    &__bar
+    {
+        width: 25%;
+    }
     &__bar + &__bar
     {
-        left: calc(33% + 0.5px);
+        left: 25%;
     }
     &__bar + &__bar + &__bar
     {
-        left: calc(66% + 1px);
+        left: 50%;
+    }
+    &__bar + &__bar + &__bar + &__bar
+    {
+        left: 75%;
     }
     &__bars
     {

@@ -78,7 +78,7 @@ var Component = React.createClass({
                     label: 'Rating'
                 }),
                 barComponent({
-                    maxValue: 3,
+                    maxValue: 4,
                     className: 'venue__bar',
                     value: price.tier,
                     valueTitle: price.message,
@@ -92,6 +92,14 @@ var Component = React.createClass({
                     valueTitle: venue.stats.usersCount,
                     color: '#' + venue.ratingColor,
                     label: 'Users'
+                }),
+                barComponent({
+                    maxValue: venue.stats.usersCount,
+                    className: 'venue__bar',
+                    value: venue.ratingSignals,
+                    valueTitle: Math.round(venue.ratingSignals/venue.stats.usersCount * 100) + '%',
+                    color: '#' + venue.ratingColor,
+                    label: 'Signals'
                 })
             )
         );
