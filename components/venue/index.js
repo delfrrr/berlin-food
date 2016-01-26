@@ -5,7 +5,7 @@
 'use strict';
 var React = require('react');
 var classnames = require('classnames');
-var barComponent = require('./bar');
+var circleComponent = require('./circle');
 require('./index.less');
 
 var Component = React.createClass({
@@ -67,35 +67,35 @@ var Component = React.createClass({
             ),
             React.DOM.div(
                 {
-                    className: 'venue__bars'
+                    className: 'venue__circles'
                 },
-                barComponent({
+                circleComponent({
                     maxValue: 5,
-                    className: 'venue__bar',
+                    className: 'venue__circle',
                     value: rating - 5,
                     valueTitle: rating,
                     color: '#' + venue.ratingColor,
                     label: 'Rating'
                 }),
-                barComponent({
+                circleComponent({
                     maxValue: 4,
-                    className: 'venue__bar',
+                    className: 'venue__circle',
                     value: price.tier,
                     valueTitle: price.message,
                     color: '#' + venue.ratingColor,
                     label: 'Price'
                 }),
-                barComponent({
+                circleComponent({
                     maxValue: this.props.maxUserCount,
-                    className: 'venue__bar',
+                    className: 'venue__circle',
                     value: venue.stats.usersCount,
                     valueTitle: venue.stats.usersCount,
                     color: '#' + venue.ratingColor,
                     label: 'Users'
                 }),
-                barComponent({
+                circleComponent({
                     maxValue: venue.stats.usersCount,
-                    className: 'venue__bar',
+                    className: 'venue__circle',
                     value: venue.ratingSignals,
                     valueTitle: Math.round(venue.ratingSignals/venue.stats.usersCount * 100) + '%',
                     color: '#' + venue.ratingColor,
