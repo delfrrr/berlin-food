@@ -7,6 +7,8 @@ var React = require('react');
 var classnames = require('classnames');
 var reactTransition = React.createFactory(require('react-transition'));
 
+require('./circle.less');
+
 var Component = React.createClass({
     render: function () {
         var value = this.props.value;
@@ -29,16 +31,35 @@ var Component = React.createClass({
                 {
                     viewBox: "0 0 100 100"
                 },
+                React.DOM.circle({
+                    cx: 50,
+                    cy: 50,
+                    r: 50,
+                    fill: this.props.color
+                }),
                 reactTransition({
                     component: 'circle',
                     cx: 50,
                     cy: 50,
-                    r: size * 50,
+                    r: 24 - size * 24 + 25,
                     duration: 200,
                     ease: 'linear',
-                    fill: this.props.color
+                    fill: 'white'
                 })
+            ),
+            React.DOM.div(
+                {
+                    className: 'venue-circle__value'
+                },
+                this.props.valueTitle || this.props.value || '?'
+            ),
+            React.DOM.div(
+                {
+                    className: 'venue-circle__label'
+                },
+                this.props.label
             )
+
         );
     }
 });

@@ -70,9 +70,9 @@ var Component = React.createClass({
                     className: 'venue__circles'
                 },
                 circleComponent({
-                    maxValue: 5,
+                    maxValue: 4,
                     className: 'venue__circle',
-                    value: rating - 5,
+                    value: rating - 6,
                     valueTitle: rating,
                     color: '#' + venue.ratingColor,
                     label: 'Rating'

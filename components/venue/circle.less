@@ -1,0 +1,22 @@
+@import "../../node_modules/lesshat/build/lesshat.less";
+
+.venue-circle
+{
+    position: relative;
+    &__value
+    {
+        position: absolute;
+        top: calc(50%-4.5px);
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    &__label
+    {
+        font-size: 12px;
+        left: 0;
+        height: 18px;
+        line-height: 18px;
+        width: 100%;
+        text-align: center;
+    }
+}
