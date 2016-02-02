@@ -1,6 +1,6 @@
 {
   "name": "foursquare-heatmap",
-  "version": "1.0.73",
+  "version": "1.0.74",
   "description": "foursquare heatmap",
   "main": "index.js",
   "scripts": {
@@ -20,6 +20,7 @@
     "chroma-js": "^1.1.1",
     "classnames": "^2.2.1",
     "commander": "^2.8.1",
+    "d3-interpolate": "^0.5.1",
     "d3-scale": "^0.5.0",
     "d3-shape": "^0.5.1",
     "elemental": "^0.5.11",
