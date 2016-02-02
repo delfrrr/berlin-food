@@ -5,7 +5,8 @@
 'use strict';
 var React = require('react');
 var classnames = require('classnames');
-var reactTransition = React.createFactory(require('react-transition'));
+// var reactTransition = React.createFactory(require('react-transition'));
+var arc = require('d3-shape').arc();
 
 require('./circle.less');
 
@@ -31,20 +32,15 @@ var Component = React.createClass({
                 {
                     viewBox: "0 0 100 100"
                 },
-                React.DOM.circle({
-                    cx: 50,
-                    cy: 50,
-                    r: 50,
+                React.DOM.path({
+                    transform: 'translate(50, 50)',
+                    d: arc({
+                        innerRadius: 40,
+                        outerRadius: 42,
+                        startAngle: 0,
+                        endAngle: Math.PI * 2 * size * (-1)
+                    }),
                     fill: this.props.color
-                }),
-                reactTransition({
-                    component: 'circle',
-                    cx: 50,
-                    cy: 50,
-                    r: 24 - size * 24 + 25,
-                    duration: 200,
-                    ease: 'linear',
-                    fill: 'white'
                 })
             ),
             React.DOM.div(
