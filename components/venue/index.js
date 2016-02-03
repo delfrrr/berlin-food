@@ -6,6 +6,8 @@
 var React = require('react');
 var classnames = require('classnames');
 var circleComponent = require('./circle');
+var util = require('util');
+var url = require('url');
 require('./index.less');
 
 var Component = React.createClass({
@@ -19,6 +21,9 @@ var Component = React.createClass({
         var rating = venue.rating;
         var price = venue.price || {};
         var website = venue.url;
+        if (website) {
+            var urlObj = url.parse(website);
+        }
         if (categories) {
             icon = categories && categories[0] && categories[0].icon;
             categoriesText = categories.map(function (c) {
@@ -47,23 +52,34 @@ var Component = React.createClass({
                 },
                 categoriesText
             ),
-            address && React.DOM.div(
+            address && React.DOM.a(
                 {
+                    href: util.format(
+                        'https://maps.google.com/maps?ll=%s,%s&q=%s,%s&hl=en&t=m&z=16',
+                        venue.location.lat,
+                        venue.location.lng,
+                        venue.location.lat,
+                        venue.location.lng
+                    ),
+                    target: '_blank',
                     className: 'venue__address'
                 },
                 address
             ),
-            phone && React.DOM.div(
+            phone && React.DOM.a(
                 {
+                    href: 'tel:phone',
                     className: 'venue__phone'
                 },
                 phone
             ),
-            website && React.DOM.div(
+            website && React.DOM.a(
                 {
+                    href: 'website',
+                    target: '_blank',
                     className: 'venue__website'
                 },
-                website
+                urlObj.hostname + urlObj.pathname
             ),
             React.DOM.div(
                 {
