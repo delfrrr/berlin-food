@@ -68,27 +68,6 @@ function pointDistance(p1, p2) {
 }
 
 /**
- * @param {CanvasRenderingContext2D} ctx
- * @param {HTMLCanvasElement} canvas
- */
-function drawHover(ctx, canvas, map) {
-    var venueTarget = viewModel.get('selectedVenueTarget');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (venueTarget) {
-        var point = map.project(venueTarget.properties.lngLat);
-        ctx.beginPath();
-        ctx.arc(
-            point.x,
-            point.y,
-            venueTarget.layer.paint['circle-radius'],
-            0, 2 * Math.PI, false
-        );
-        ctx.fillStyle = chroma.gl.apply(chroma, venueTarget.layer.paint['circle-color']).darken(1).css();
-        ctx.fill();
-    }
-}
-
-/**
  * @param {Point[]} venuePoints
  * @return {Object.<String, Point[]>} point classes
  */
@@ -239,12 +218,6 @@ module.exports = function (mapPromise) {
             addCircleClasses(batch, venueClasses);
             addLabelClasses(batch, vanueLabelClasses);
         });
-        var canvas = map.getCanvas().cloneNode();
-        map.getCanvasContainer().appendChild(canvas);
-        var ctx = canvas.getContext('2d');
-        viewModel.on('change:selectedVenueTarget', function () {
-            drawHover(ctx, canvas, map);
-        });
         map.on('move', function () {
             viewModel.set('selectedVenueTarget', null);
         });
@@ -268,7 +241,10 @@ module.exports = function (mapPromise) {
                         );
                     })).length
                 ) {
-                    viewModel.set('selectedVenueTarget', targetObjects[0]);
+                    viewModel.set({
+                        selectedVenueTarget: targetObjects[0],
+                        selectedVenuePosition: map.project(targetObjects[0].properties.lngLat)
+                    });
                 }
             });
         });

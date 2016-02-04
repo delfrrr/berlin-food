@@ -9,6 +9,8 @@ var clusters = require('./clusters');
 var venues = require('./venues');
 var streets = require('./streets');
 var panel = require('../panel');
+var venueLink = require('./link');
+
 require('./index.less');
 
 module.exports = React.createFactory(React.createClass({
@@ -57,6 +59,7 @@ render: function () {
             className: 'map__map-node',
             ref: 'mapNode'
         }),
+        venueLink(),
         panel({
             className: 'map__panel'
         })
