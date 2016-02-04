@@ -8,6 +8,7 @@ var classnames = require('classnames');
 var circleComponent = require('./circle');
 var util = require('util');
 var url = require('url');
+var scale = require('d3-scale');
 require('./index.less');
 
 var Component = React.createClass({
@@ -21,6 +22,8 @@ var Component = React.createClass({
         var rating = venue.rating;
         var price = venue.price || {};
         var website = venue.url;
+        var userCountScale = scale.scaleLinear().domain([0, 100, 1000, this.props.maxUserCount]).range([0, 25, 50, 100]);
+
         if (website) {
             var urlObj = url.parse(website);
         }
@@ -102,9 +105,9 @@ var Component = React.createClass({
                     label: 'Price'
                 }),
                 circleComponent({
-                    maxValue: this.props.maxUserCount,
+                    maxValue: 100,
                     className: 'venue__circle',
-                    value: venue.stats.usersCount,
+                    value: userCountScale(venue.stats.usersCount),
                     valueTitle: venue.stats.usersCount,
                     color: '#' + venue.ratingColor,
                     label: 'Users'
