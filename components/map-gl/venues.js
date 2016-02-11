@@ -11,10 +11,12 @@ var chroma = require('chroma-js');
 var mapboxgl  = require('mapboxgl');
 var scale = require('d3-scale');
 var viewModel = require('../../lib/view-model');
+var eventTarget = require('./event-target');
 var _ = require('lodash');
 var CLASS_SEPARATOR = '&';
 var LABEL_SIZE = 12;
 var MIN_LABEL_RATING = 6;
+var MIN_ZOOM = 13;
 
 /**
  * @type {function}
@@ -57,17 +59,6 @@ var venuesPromise = new Promise(function (resolve, reject) {
 });
 
 /**
- * @param {mapboxgl.Point} p1
- * @param {mapboxgl.Point} p2
- * @return {Number} pixel distance
- */
-function pointDistance(p1, p2) {
-    var dx = p1.x - p2.x;
-    var dy = p1.y - p2.y;
-    return Math.sqrt(dx * dx + dy * dy);
-}
-
-/**
  * @param {Point[]} venuePoints
  * @return {Object.<String, Point[]>} point classes
  */
@@ -83,8 +74,8 @@ function getVenueCircleClasses(venuePoints) {
             color = chroma(color).brighten(brightnes).css()
         }
         var minzoom = Math.floor(getMinZoomLevel(props.clusterRating));
-        if (minzoom < 13) {
-            minzoom = 13;
+        if (minzoom < MIN_ZOOM) {
+            minzoom = MIN_ZOOM;
         }
         return [
             color,
@@ -225,25 +216,11 @@ module.exports = function (mapPromise) {
             map.featuresAt(e.point, {
                 radius: 25
             }, function (err, features) {
-                var targetObjects;
-                if (features &&
-                    features.length &&
-                    (targetObjects = features.filter(function (f) {
-                        return (
-                            f.layer.id.match(/^venue-circle/) &&
-                            f.properties.lngLat &&
-                            (
-                                pointDistance(
-                                    map.project(f.properties.lngLat),
-                                    e.point
-                                ) <= f.layer.paint['circle-radius']
-                            )
-                        );
-                    })).length
-                ) {
+                var targetObject = eventTarget(e, features, map, /^venue-circle/);
+                if (targetObject) {
                     viewModel.set({
-                        selectedVenueTarget: targetObjects[0],
-                        selectedVenuePosition: map.project(targetObjects[0].properties.lngLat)
+                        selectedVenueTarget: targetObject,
+                        selectedVenuePosition: map.project(targetObject.properties.lngLat)
                     });
                 }
             });
