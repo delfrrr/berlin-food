@@ -10,6 +10,7 @@ var venues = require('./venues');
 var streets = require('./streets');
 var panel = require('../panel');
 var venueLink = require('./link');
+var clusterHighlight = require('./cluster-hilight');
 
 require('./index.less');
 
@@ -60,6 +61,7 @@ render: function () {
             ref: 'mapNode'
         }),
         venueLink(),
+        clusterHighlight(),
         panel({
             className: 'map__panel'
         })

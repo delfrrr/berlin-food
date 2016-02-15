@@ -1,6 +1,6 @@
 /**
- * link which appears under cursor when user hovers venue
- * @module link
+ * hilight cluster
+ * @module cluster-hilight
  */
 
 'use strict';
@@ -12,7 +12,6 @@ var _ = require('lodash');
 var Component = React.createClass({
     getInitialState: function () {
         return {
-            target: '_blank',
             style: {
                 position: 'absolute',
                 top: 100,
@@ -20,7 +19,9 @@ var Component = React.createClass({
                 width: 20,
                 height: 20,
                 pointerEvents:'none',
-                backgroundColor: 'gold',
+                borderColor: 'gold',
+                borderWidth: '2px',
+                borderStyle: 'dashed',
                 display: 'none',
                 cursor: 'pointer'
             }
@@ -28,24 +29,23 @@ var Component = React.createClass({
     },
     componentWillMount: function () {
         var component = this;
-        viewModel.on('change:selectedVenueTarget', function () {
+        viewModel.on('change', function () {
+            var clusterTarget = viewModel.get('selectedClusterTarget');
             var venueTarget = viewModel.get('selectedVenueTarget');
-            var point = viewModel.get('selectedVenuePosition');
+            var point = viewModel.get('selectedClusterPosition');
             var newState = {
                 style: _.clone(component.state.style)
             };
             var style = newState.style;
-            if (venueTarget) {
-                var radius = venueTarget.layer.paint['circle-radius'];
-                var venue = venueTarget.properties.venue;
+            if (clusterTarget && !venueTarget) {
+                var radius = clusterTarget.layer.paint['circle-radius'] - 1;
                 style.display = 'block';
-                style.left = point.x - radius;
-                style.top = point.y - radius;
+                style.left = point.x - radius - 2;
+                style.top = point.y - radius - 2;
                 style.width = radius * 2;
                 style.height = radius * 2;
-                style.borderRadius = radius;
-                style.backgroundColor = chroma.gl.apply(chroma, venueTarget.layer.paint['circle-color']).darken(1).css();
-                newState.href = 'https://foursquare.com/venue/' + venue.id;
+                style.borderRadius = radius * 2;
+                style.borderColor = chroma.gl.apply(chroma, clusterTarget.layer.paint['circle-color']).darken(1).css();
             } else {
                 style.display = 'none';
             }
@@ -53,7 +53,7 @@ var Component = React.createClass({
         });
     },
     render: function () {
-        return React.DOM.a(this.state);
+        return React.DOM.div(this.state);
     }
 });
 

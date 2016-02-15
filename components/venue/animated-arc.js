@@ -18,6 +18,9 @@ var Component = React.createClass({
         var interpolator = d3i.interpolate(this.props, newProps);
         var start = Date.now();
         this._animation = function () {
+            if (!component.isMounted ) {
+                return;
+            }
             var now = Date.now();
             var t = (now - start) / DURATION;
             if (t > 1) {

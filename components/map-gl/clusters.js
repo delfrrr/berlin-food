@@ -15,6 +15,7 @@ var getOpacity = scale.scaleLinear().domain([1, 14, 17, 19]).range([0.8, 0.8, 0.
 var eventTarget = require('./event-target');
 var viewModel = require('../../lib/view-model');
 var CLASS_SEPARATOR = '&';
+var MIN_HIGHLIGHT_OPACITY = 0.4;
 var R = 6371;//km
 
 /**
@@ -154,7 +155,11 @@ module.exports = function (mapPromise) {
                 radius: distanceZoomScale[Math.ceil(zoom)][1] * MAX_RADIUS
             }, function (err, features) {
                 var targetObject = eventTarget(e, features, map, /^cluster/);
-                if (targetObject && targetObject.layer.minzoom <= zoom) {
+                if (
+                    targetObject &&
+                    targetObject.layer.minzoom <= zoom &&
+                    targetObject.layer.paint['circle-opacity'] > MIN_HIGHLIGHT_OPACITY
+                ) {
                     viewModel.set({
                         selectedClusterTarget: targetObject,
                         selectedClusterPosition: map.project(targetObject.properties.lngLat)
