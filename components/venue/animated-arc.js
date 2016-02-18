@@ -18,7 +18,7 @@ var Component = React.createClass({
         var interpolator = d3i.interpolate(this.props, newProps);
         var start = Date.now();
         this._animation = function () {
-            if (!component.isMounted ) {
+            if (!component._isMounted ) {
                 return;
             }
             var now = Date.now();
@@ -34,8 +34,12 @@ var Component = React.createClass({
         }
         window.requestAnimationFrame(component._animation);
     },
+    componentWillMount: function () {
+        this._isMounted = true;
+    },
     componentWillUnmount: function () {
         this._animation = function () {}
+        this._isMounted = false;
     },
     render: function () {
         var pathProps = _.clone(this.state);

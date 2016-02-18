@@ -213,17 +213,20 @@ module.exports = function (mapPromise) {
             viewModel.set('selectedVenueTarget', null);
         });
         map.on('mousemove', function (e) {
-            map.featuresAt(e.point, {
-                radius: 25
-            }, function (err, features) {
-                var targetObject = eventTarget(e, features, map, /^venue-circle/);
-                if (targetObject) {
-                    viewModel.set({
-                        selectedVenueTarget: targetObject,
-                        selectedVenuePosition: map.project(targetObject.properties.lngLat)
-                    });
-                }
-            });
+            var zoom = map.getZoom();
+            if (zoom >= 15) {
+                map.featuresAt(e.point, {
+                    radius: 25
+                }, function (err, features) {
+                    var targetObject = eventTarget(e, features, map, /^venue-circle/);
+                    if (targetObject) {
+                        viewModel.set({
+                            selectedVenueTarget: targetObject,
+                            selectedVenuePosition: map.project(targetObject.properties.lngLat)
+                        });
+                    }
+                });
+            }
         });
     });
 

@@ -33,7 +33,7 @@ function getDistanceZoomScale(map) {
     var pixelToKm = pixelToDeg * 180 / Math.PI / R  /
         Math.pow(2, zoom) /
         Math.cos(center[0] / 180 * Math.PI);
-    return _.range(1, 20).map(function (zoom) {
+    return _.range(1, 21).map(function (zoom) {
         return [zoom, pixelToKm * Math.pow(2, zoom)];
     });
 }
@@ -152,7 +152,7 @@ module.exports = function (mapPromise) {
         map.on('mousemove', function (e) {
             var zoom = map.getZoom();
             map.featuresAt(e.point, {
-                radius: distanceZoomScale[Math.ceil(zoom)][1] * MAX_RADIUS
+                radius: distanceZoomScale[Math.ceil(zoom) - 1][1] * MAX_RADIUS
             }, function (err, features) {
                 var targetObject = eventTarget(e, features, map, /^cluster/);
                 if (
@@ -168,5 +168,4 @@ module.exports = function (mapPromise) {
             });
         });
     });
-
 }

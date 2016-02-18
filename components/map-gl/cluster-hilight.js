@@ -7,7 +7,7 @@
 
 var React = require('react');
 var viewModel = require('../../lib/view-model');
-var chroma = require('chroma-js');
+// var chroma = require('chroma-js');
 var _ = require('lodash');
 var Component = React.createClass({
     getInitialState: function () {
@@ -21,7 +21,7 @@ var Component = React.createClass({
                 pointerEvents:'none',
                 borderColor: 'gold',
                 borderWidth: '2px',
-                borderStyle: 'dashed',
+                borderStyle: 'solid',
                 display: 'none',
                 cursor: 'pointer'
             }
@@ -45,7 +45,8 @@ var Component = React.createClass({
                 style.width = radius * 2;
                 style.height = radius * 2;
                 style.borderRadius = radius * 2;
-                style.borderColor = chroma.gl.apply(chroma, clusterTarget.layer.paint['circle-color']).darken(1).css();
+                // style.borderColor = chroma.gl.apply(chroma, clusterTarget.layer.paint['circle-color']).darken(1).css();
+                style.borderColor = 'white';
             } else {
                 style.display = 'none';
             }

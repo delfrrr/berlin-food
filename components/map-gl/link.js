@@ -19,7 +19,6 @@ var Component = React.createClass({
                 left: 100,
                 width: 20,
                 height: 20,
-                pointerEvents:'none',
                 backgroundColor: 'gold',
                 display: 'none',
                 cursor: 'pointer'

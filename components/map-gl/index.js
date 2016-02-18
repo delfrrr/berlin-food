@@ -10,6 +10,7 @@ var venues = require('./venues');
 var streets = require('./streets');
 var panel = require('../panel');
 var venueLink = require('./link');
+var viewModel = require('../../lib/view-model');
 var clusterHighlight = require('./cluster-hilight');
 
 require('./index.less');
@@ -42,6 +43,23 @@ componentDidMount: function () {
     clusters(mapPromise);
     venues(mapPromise);
     streets(mapPromise);
+
+    viewModel.on('change:selectedClusterTarget', function () {
+        var clusterTarget = viewModel.get('selectedClusterTarget');
+        var venueTarget = viewModel.get('selectedVenueTarget');
+        var venueClusterId;
+        var clusterId;
+        if (venueTarget) {
+            venueClusterId = venueTarget.properties.clusterId;
+        }
+        if (clusterTarget) {
+            clusterId = clusterTarget.properties.clusterId;
+        }
+        if (clusterId && venueClusterId !== clusterId) {
+            //means we hilighted next cluster
+            viewModel.set('selectedVenueTarget', null);
+        }
+    });
 },
 
 _onMapChange: function () {
