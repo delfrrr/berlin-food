@@ -7,6 +7,7 @@ var React = require('react');
 var classnames = require('classnames');
 var viewModel = require('../../lib/view-model');
 var venueComponent = require('../venue');
+var clusterComponent = require('../cluster');
 require('./index.less');
 
 var Component = React.createClass({
@@ -19,20 +20,28 @@ var Component = React.createClass({
     },
     render: function () {
         var selectedVenueTarget = viewModel.get('selectedVenueTarget');
+        var selectedClusterTarget = viewModel.get('selectedClusterTarget');
         var venue;
+        var cluster;
         if (selectedVenueTarget) {
             venue = selectedVenueTarget.properties.venue;
+        }
+        if (selectedClusterTarget) {
+            cluster = selectedClusterTarget.properties;
         }
         return React.DOM.div(
             {
                 className: classnames(this.props.className, 'panel')
             },
-            selectedVenueTarget &&
-            venueComponent({
+            (selectedVenueTarget && venueComponent({
                 className: 'panel__venue',
                 venue: venue,
                 maxUserCount: viewModel.get('maxUserCount')
-            }) ||
+            })) ||
+            (cluster && clusterComponent({
+                className: 'panel__cluster',
+                cluster: cluster
+            })) ||
             React.DOM.div({
                 className: 'panel__about'
             }, 'Hover venue to see details')
