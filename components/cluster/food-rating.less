@@ -1,0 +1,59 @@
+@import "../../node_modules/lesshat/build/lesshat.less";
+@import "../../lib/mixins.less";
+
+.variables();
+
+.food-rating
+{
+    @bar-heigth: 35px;
+    &__rating-item
+    {
+        position: relative;
+        overflow: hidden;
+        height: @bar-heigth;
+    }
+    &__short-name
+    {
+        width: 100px;
+        text-align: right;
+        float: left;
+        line-height: @bar-heigth;
+        font-size: @small-text;
+    }
+    &__rating-bar
+    {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        border-radius: 15px;
+        transition: all 200ms;
+    }
+    &__count-bar-value
+    {
+        background-color: white;
+        font-size: @small-text * 0.9;
+        position: absolute;
+        height: @bar-heigth;
+        line-height: @bar-heigth;
+        top: 0;
+        transition: left 200ms;
+        transform: translateX(-50%);
+        padding: 0 2px;
+        color: @grey-text;
+    }
+    &__count-bar
+    {
+        position: absolute;
+        top: calc(50%-0.5);
+        transition: width 200ms;
+        height: 1px;
+    }
+    &__bar
+    {
+        float: left;
+        width: 100px;
+        height: @bar-heigth;
+        position: relative;
+        margin-left: 10px;
+    }
+}
