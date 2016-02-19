@@ -48,7 +48,7 @@ var Component = React.createClass({
             foodRatings.map(function (ratingItem, k) {
                 var color = ratingColorScale(ratingItem.rating + 2); //becouse 7 is max
                 var countBarLength = Math.floor(getCountLength(ratingItem.count)) + '%';
-                var ratingBarSize = Math.floor(getRadius(ratingItem.rating + 2));
+                var ratingBarSize = Math.floor(getRadius(ratingItem.rating));
                 if (ratingBarSize < 5) {
                     ratingBarSize = 5;
                 }
@@ -83,7 +83,7 @@ var Component = React.createClass({
                                 }
                             }
                         ),
-                        (ratingItem.count > 1) && React.DOM.div(
+                        React.DOM.div(
                             {
                                 className: 'food-rating__count-bar-value',
                                 style: {

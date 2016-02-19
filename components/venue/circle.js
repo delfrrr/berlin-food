@@ -31,13 +31,24 @@ var Component = React.createClass({
                 {
                     viewBox: "0 0 100 100"
                 },
+                React.DOM.circle(
+                    {
+                        cx: 50,
+                        cy: 50,
+                        r: 40.5,
+                        strokeStyle: 'solid',
+                        strokeWidth: '1px',
+                        stroke: '#222',
+                        fill: 'transparent'
+                    }
+                ),
                 animatedArc({
                     transform: 'translate(50, 50)',
                     innerRadius: 40,
                     outerRadius: 41,
                     startAngle: 0,
                     endAngle: Math.PI * 2 * size * (-1),
-                    fill: unknown? '#efefef' : this.props.color
+                    fill: unknown? 'transparent' : this.props.color
                 })
             ),
             React.DOM.div(

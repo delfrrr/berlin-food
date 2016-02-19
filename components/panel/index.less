@@ -1,9 +1,26 @@
 @import "../../lib/mixins.less";
+@import "../../node_modules/lesshat/build/lesshat.less";
+
 .variables();
 .panel
 {
-    & > *
+    color: @panel-text-color;
+    position: absolute;
+    &__about
     {
-        color: @panel-text-color;
+        position: absolute;
+        top: 50%;
+        width: 300px;
+        left: 50%;
+        text-align: center;
+        transform: translate(-50%, -50%);
+    }
+    &__about-icon
+    {
+        .size(32px);
+        background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTEzIDEuMDdWOWg3YzAtNC4wOC0zLjA1LTcuNDQtNy03Ljkzek00IDE1YzAgNC40MiAzLjU4IDggOCA4czgtMy41OCA4LTh2LTRINHY0em03LTEzLjkzQzcuMDUgMS41NiA0IDQuOTIgNCA5aDdWMS4wN3oiLz48L3N2Zz4=);
+        background-size: 100%;
+        margin: 0 auto;
+        margin-bottom: 10px;
     }
 }

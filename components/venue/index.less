@@ -1,15 +1,6 @@
 @import "../../node_modules/lesshat/build/lesshat.less";
 @import "../../lib/mixins.less";
 .variables();
-.href(@color: @foursquare-blue)
-{
-    text-decoration: none;
-    color: @color;
-    &:hover
-    {
-        text-decoration: underline;
-    }
-}
 
 .venue
 {
@@ -18,7 +9,7 @@
     width: 100%;
     bottom: 0;
     box-sizing: border-box;
-    color: @black-text;
+    color: @panel-text-color;
     &__icon
     {
         .size(44px);
