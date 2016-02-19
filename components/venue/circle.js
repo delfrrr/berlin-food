@@ -34,7 +34,7 @@ var Component = React.createClass({
                 animatedArc({
                     transform: 'translate(50, 50)',
                     innerRadius: 40,
-                    outerRadius: 42,
+                    outerRadius: 41,
                     startAngle: 0,
                     endAngle: Math.PI * 2 * size * (-1),
                     fill: unknown? '#efefef' : this.props.color

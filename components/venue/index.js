@@ -6,7 +6,6 @@
 var React = require('react');
 var classnames = require('classnames');
 var circleComponent = require('./circle');
-var util = require('util');
 var url = require('url');
 var scale = require('d3-scale');
 require('./index.less');
@@ -17,16 +16,10 @@ var Component = React.createClass({
         var categories = venue.categories;
         var icon;
         var categoriesText;
-        var phone = venue.contact && venue.contact.phone;
-        var address = venue.location.address;
         var rating = venue.rating;
         var price = venue.price || {};
-        var website = venue.url;
         var userCountScale = scale.scaleLinear().domain([0, 100, 1000, this.props.maxUserCount]).range([0, 25, 50, 100]);
 
-        if (website) {
-            var urlObj = url.parse(website);
-        }
         if (categories) {
             icon = categories && categories[0] && categories[0].icon;
             categoriesText = categories.map(function (c) {
@@ -54,35 +47,6 @@ var Component = React.createClass({
                     className: 'venue__category'
                 },
                 categoriesText
-            ),
-            address && React.DOM.a(
-                {
-                    href: util.format(
-                        'https://maps.google.com/maps?ll=%s,%s&q=%s,%s&hl=en&t=m&z=16',
-                        venue.location.lat,
-                        venue.location.lng,
-                        venue.location.lat,
-                        venue.location.lng
-                    ),
-                    target: '_blank',
-                    className: 'venue__address'
-                },
-                address
-            ),
-            phone && React.DOM.a(
-                {
-                    href: 'tel:phone',
-                    className: 'venue__phone'
-                },
-                phone
-            ),
-            website && React.DOM.a(
-                {
-                    href: 'website',
-                    target: '_blank',
-                    className: 'venue__website'
-                },
-                urlObj.hostname + urlObj.pathname
             ),
             React.DOM.div(
                 {
