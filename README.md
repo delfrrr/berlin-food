@@ -92,4 +92,8 @@ See
 
 ## Run Berlin NDE clustering
 
-    $ node ./apps/nde-cluster.js --bbox 52.38029861450195,13.247178093419942,52.65529274940338,13.519765 --ways ./geojson/berlin.json > geojson/streets.json 
+    $ node ./apps/nde-cluster.js --bbox 52.38029861450195,13.247178093419942,52.65529274940338,13.519765 --ways ./geojson/berlin.json > geojson/streets.json
+
+## Run clusters post processing
+
+    $ node apps/process-clusters.js --clusters ./geojson/berlin-clusters.json --out ./geojson/

@@ -15,8 +15,8 @@ program
     .option('--out [string]', 'output folder', String)
     .option('--prefix [string]', 'output file prefix', 'processed.')
     .option('--dry [boolean]', 'do not output json', false)
-    .option('--rating [number]', 'do not output json', 4)
-    .description('process clusters, agregade stats');
+    .option('--rating [number]', 'minimal cluster rating', 4)
+    .description('process clusters, agregate stats');
 
 program.parse(process.argv);
 
