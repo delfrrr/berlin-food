@@ -15,6 +15,7 @@ var getOpacity = scale.scaleLinear().domain([1, 14, 17, 19]).range([0.8, 0.8, 0.
 var eventTarget = require('./event-target');
 var viewModel = require('../../lib/view-model');
 var CLASS_SEPARATOR = '&';
+var MAX_ZOOM = 13;
 var MIN_HIGHLIGHT_OPACITY = 0.4;
 var R = 6371;//km
 
@@ -151,6 +152,9 @@ module.exports = function (mapPromise) {
 
         map.on('mousemove', function (e) {
             var zoom = map.getZoom();
+            if (zoom >= MAX_ZOOM) {
+                return;
+            }
             map.featuresAt(e.point, {
                 radius: distanceZoomScale[Math.ceil(zoom) - 1][1] * MAX_RADIUS
             }, function (err, features) {
