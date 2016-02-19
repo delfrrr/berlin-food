@@ -5,9 +5,11 @@
 'use strict';
 var React = require('react');
 var classnames = require('classnames');
-
+var foodRatingComponent = require('./food-rating');
+require('./index.less');
 var Component = React.createClass({
     render: function () {
+        var cluster = this.props.cluster;
         return React.DOM.div(
             {
                 className: classnames(
@@ -15,7 +17,10 @@ var Component = React.createClass({
                     'cluster'
                 )
             },
-            'cluster'
+            foodRatingComponent({
+                foodRatings: cluster.foodRatings,
+                className: 'cluster__food-rating'
+            })
         );
     }
 });

@@ -75,6 +75,48 @@ var streets = [];
  */
 var clusters = [];
 
+/**
+ * @typedef {Object} FoodCategoryItem
+ * @prop {Number} rating
+ * @prop {Number} count
+ * @prop {VenueCategory} category
+ */
+
+/**
+ * @param {Point[]} venuePoints
+ * @return {FoodCategoryItem[]}
+ */
+function getFoodRatings(venuePoints) {
+    /**
+     * @type {Object.<VenueCategory.id, VenueCategory>}
+     */
+    var categoriesById = {};
+    /**
+     * @type {Object.<VenueCategory.id, Point>}
+     */
+    var venuePointsByCategoryId = {};
+
+    venuePoints.forEach(function (vp) {
+        var category = vp.properties.venue.categories && vp.properties.venue.categories[0];
+        if (category) {
+            categoriesById[category.id] = category;
+            venuePointsByCategoryId[category.id] = (venuePointsByCategoryId[category.id] || []).concat([vp]);
+        }
+    });
+
+    var categories = Object.keys(categoriesById).map(function (categoryId) {
+        return {
+            rating: getClusterRating(getRatingCounts(venuePointsByCategoryId[categoryId])),
+            category: categoriesById[categoryId],
+            count: venuePointsByCategoryId[categoryId].length
+        }
+    }).sort(function (c1, c2) {
+        return c2.rating - c1.rating;
+    }).slice(0, 5);
+
+    return categories;
+}
+
 allClusters.forEach(function (clusterPoint) {
     var clusterId = clusterPoint.properties.clusterId;
     var clusterSize = clusterPoint.properties.venuePoints.length;
@@ -83,6 +125,9 @@ allClusters.forEach(function (clusterPoint) {
     if (clusterRating < program.rating) {
         return;
     }
+
+    var foodRatings = getFoodRatings(clusterPoint.properties.venuePoints);
+
     clusterPoint.properties.venuePoints.forEach(function (p) {
         p.properties.clusterId = clusterId;
         p.properties.clusterRating = clusterRating;
@@ -101,6 +146,7 @@ allClusters.forEach(function (clusterPoint) {
     clusterPoint.properties = {
         clusterId: clusterId,
         ratingCounts: ratingCounts,
+        foodRatings: foodRatings,
         clusterRating: clusterRating,
         bbox: clusterPoint.properties.bbox,
         radius: clusterPoint.properties.radius, //km
