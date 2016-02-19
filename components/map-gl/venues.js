@@ -18,15 +18,7 @@ var LABEL_SIZE = 12;
 var MIN_LABEL_RATING = 6;
 var MIN_ZOOM = 13;
 
-/**
- * @type {function}
- * @param {Venue.rating}
- * @return {Number} circle max radius px
- */
-var getRadius = scale.scalePow()
-    .exponent(3)
-    .domain([1, 9])
-    .range([1, 25]);
+var getRadius = require('../../lib/venue-radius');
 
 /**
  * @type {function}

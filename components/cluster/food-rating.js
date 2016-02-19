@@ -5,8 +5,21 @@
 'use strict';
 var React = require('react');
 var classnames = require('classnames');
-require('./food-rating.less');
 var chroma = require('chroma-js');
+var getRadius = require('../../lib/venue-radius');
+var scale = require('d3-scale');
+
+require('./food-rating.less');
+
+/**
+ * @param {number} count - number of venues
+ * @return {number} percentage
+ */
+var getCountLength = scale
+    .scaleLinear()
+    .range([10, 100])
+    .domain([1, 18]);
+
 /**
  * @param {Number} rating
  * @return {Sting} color
@@ -34,8 +47,12 @@ var Component = React.createClass({
             },
             foodRatings.map(function (ratingItem, k) {
                 var color = ratingColorScale(ratingItem.rating + 2); //becouse 7 is max
-                var countBarLength = ratingItem.count * 10;
-                var ratingBarSize = 3 * ratingItem.rating || 3;
+                var countBarLength = Math.floor(getCountLength(ratingItem.count)) + '%';
+                var ratingBarSize = Math.floor(getRadius(ratingItem.rating + 2));
+                if (ratingBarSize < 5) {
+                    ratingBarSize = 5;
+                }
+                var icon = ratingItem.category.icon;
                 return React.DOM.div(
                     {
                         className: 'food-rating__rating-item',
@@ -51,6 +68,12 @@ var Component = React.createClass({
                         {
                             className: 'food-rating__bar'
                         },
+                        React.DOM.img(
+                            {
+                                className: 'food-rating__icon',
+                                src: [icon.prefix, '32', icon.suffix].join('')
+                            }
+                        ),
                         React.DOM.div(
                             {
                                 className: 'food-rating__count-bar',
@@ -64,7 +87,7 @@ var Component = React.createClass({
                             {
                                 className: 'food-rating__count-bar-value',
                                 style: {
-                                    left: countBarLength / 2
+                                    left: parseInt(countBarLength) / 2 + '%'
                                 }
                             },
                             ratingItem.count
@@ -76,7 +99,9 @@ var Component = React.createClass({
                                     left: countBarLength,
                                     width:   ratingBarSize,
                                     height:  ratingBarSize,
-                                    backgroundColor: color
+                                    // backgroundColor: color,
+                                    borderColor: color,
+                                    borderRadius: ratingBarSize
                                 }
                             }
                         )

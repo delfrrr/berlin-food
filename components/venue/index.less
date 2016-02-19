@@ -14,14 +14,14 @@
 .venue
 {
     position: absolute;
+    top: 0;
+    width: 100%;
+    bottom: 0;
     box-sizing: border-box;
     color: @black-text;
     &__icon
     {
-        .size(32px);
-        background-repeat: no-repeat;
-        background-position: center;
-        border-radius: 16px;
+        .size(44px);
         float: left;
     }
 
@@ -30,12 +30,23 @@
     {
         margin-left: 42px;
         display: block;
+        font-weight: 300;
+        font-size: 18px;
     }
 
     &__category
     {
         color: @panel-grey-color;
-        font-size: 10px;
+        font-size: 12px;
+    }
+
+    &__info
+    {
+        position: absolute;
+        top: 50%;
+        width: 300px;
+        overflow: hidden;
+        transform: translateY(-50%);
     }
 
     &__circles
@@ -43,12 +54,18 @@
         position: absolute;
         top: 0;
         right: 0;
+        height: 100%;
+        width: 60%;
     }
     &__circle
     {
         width: 150px;
+        margin: 0 auto;
+    }
+
+    &__circle-wraper
+    {
+        width: 25%;
         float: left;
-        box-sizing: border-box;
-        padding: 5px;
     }
 }

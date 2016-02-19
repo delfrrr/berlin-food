@@ -6,7 +6,6 @@
 var React = require('react');
 var classnames = require('classnames');
 var circleComponent = require('./circle');
-var url = require('url');
 var scale = require('d3-scale');
 require('./index.less');
 
@@ -30,60 +29,85 @@ var Component = React.createClass({
             {
                 className: classnames(this.props.className, 'venue')
             },
-            icon && React.DOM.img(
-                {
-                    className: 'venue__icon',
-                    src: [icon.prefix, '32', icon.suffix].join('')
-                }
-            ),
             React.DOM.div(
                 {
-                    className: 'venue__name'
+                    className: 'venue__info'
                 },
-                venue.name
-            ),
-            categoriesText && React.DOM.div(
-                {
-                    className: 'venue__category'
-                },
-                categoriesText
+                icon && React.DOM.img(
+                    {
+                        className: 'venue__icon',
+                        src: [icon.prefix, '44', icon.suffix].join('')
+                    }
+                ),
+                React.DOM.div(
+                    {
+                        className: 'venue__name'
+                    },
+                    venue.name
+                ),
+                categoriesText && React.DOM.div(
+                    {
+                        className: 'venue__category'
+                    },
+                    categoriesText
+                )
             ),
             React.DOM.div(
                 {
                     className: 'venue__circles'
                 },
-                circleComponent({
-                    maxValue: 4,
-                    className: 'venue__circle',
-                    value: rating - 6,
-                    valueTitle: rating,
-                    color: '#' + venue.ratingColor,
-                    label: 'Rating'
-                }),
-                circleComponent({
-                    maxValue: 4,
-                    className: 'venue__circle',
-                    value: price.tier,
-                    valueTitle: price.message,
-                    color: '#' + venue.ratingColor,
-                    label: 'Price'
-                }),
-                circleComponent({
-                    maxValue: 100,
-                    className: 'venue__circle',
-                    value: userCountScale(venue.stats.usersCount),
-                    valueTitle: venue.stats.usersCount,
-                    color: '#' + venue.ratingColor,
-                    label: 'Users'
-                }),
-                circleComponent({
-                    maxValue: venue.stats.usersCount,
-                    className: 'venue__circle',
-                    value: venue.ratingSignals,
-                    valueTitle: Math.round(venue.ratingSignals/venue.stats.usersCount * 100) + '%',
-                    color: '#' + venue.ratingColor,
-                    label: 'Signals'
-                })
+                React.DOM.div(
+                    {
+                        className: 'venue__circle-wraper'
+                    },
+                    circleComponent({
+                        maxValue: 4,
+                        className: 'venue__circle',
+                        value: rating - 6,
+                        valueTitle: rating,
+                        color: '#' + venue.ratingColor,
+                        label: 'Rating'
+                    })
+                ),
+                React.DOM.div(
+                    {
+                        className: 'venue__circle-wraper'
+                    },
+                    circleComponent({
+                        maxValue: 4,
+                        className: 'venue__circle',
+                        value: price.tier,
+                        valueTitle: price.message,
+                        color: '#' + venue.ratingColor,
+                        label: 'Price'
+                    })
+                ),
+                React.DOM.div(
+                    {
+                        className: 'venue__circle-wraper'
+                    },
+                    circleComponent({
+                        maxValue: 100,
+                        className: 'venue__circle',
+                        value: userCountScale(venue.stats.usersCount),
+                        valueTitle: venue.stats.usersCount,
+                        color: '#' + venue.ratingColor,
+                        label: 'Users'
+                    })
+                ),
+                React.DOM.div(
+                    {
+                        className: 'venue__circle-wraper'
+                    },
+                    circleComponent({
+                        maxValue: venue.stats.usersCount,
+                        className: 'venue__circle',
+                        value: venue.ratingSignals,
+                        valueTitle: Math.round(venue.ratingSignals/venue.stats.usersCount * 100) + '%',
+                        color: '#' + venue.ratingColor,
+                        label: 'Votes per Users'
+                    })
+                )
             )
         );
     }

@@ -9,14 +9,16 @@
     &__rating-item
     {
         position: relative;
-        overflow: hidden;
+        width: 100%;
         height: @bar-heigth;
     }
     &__short-name
     {
         width: 100px;
+        position: absolute;
+        left: 0;
+        height: 100%;
         text-align: right;
-        float: left;
         line-height: @bar-heigth;
         font-size: @small-text;
     }
@@ -25,8 +27,9 @@
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        border-radius: 15px;
         transition: all 200ms;
+        border-width: 1px;
+        border-style: solid;
     }
     &__count-bar-value
     {
@@ -48,12 +51,21 @@
         transition: width 200ms;
         height: 1px;
     }
+    &__icon
+    {
+        .size(32px);
+        position: absolute;
+        left: -5px;
+        top: 50%;
+        opacity: 0.8;
+        transform: translate(-100%, -50%);
+    }
     &__bar
     {
-        float: left;
-        width: 100px;
-        height: @bar-heigth;
-        position: relative;
-        margin-left: 10px;
+        left: 142px;
+        height: 100%;
+        top: 0;
+        right: 35px;
+        position: absolute;
     }
 }
