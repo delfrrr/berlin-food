@@ -51,6 +51,29 @@ function getRatingCounts(venuePoints) {
 }
 
 /**
+ * @param {Point[]} venuePoints
+ * @return {{raring: number, total: number, prices: Object.<Venue.price.tier, Number>}[]}
+ */
+function getPriceByRating(venuePoints) {
+    var venuesByRating =  _.groupBy(venuePoints.filter(function (p) {
+        return p.properties.venue.rating && p.properties.venue.price;
+    }), function (p) {
+        return Math.floor(p.properties.venue.rating);
+    });
+    var pricesByRating = Object.keys(venuesByRating).map(function (rating) {
+        var venuePoints = venuesByRating[rating];
+        return {
+            rating: Number(rating),
+            total: venuePoints.length,
+            prices: _.countBy(venuePoints, function (p) {
+                return p.properties.venue.price.tier;
+            })
+        }
+    });
+    return pricesByRating;
+}
+
+/**
  * @type {Point[]}
  */
 var allClusters = require(process.cwd() + '/' + program.clusters).features;
@@ -125,7 +148,7 @@ allClusters.forEach(function (clusterPoint) {
     if (clusterRating < program.rating) {
         return;
     }
-
+    var priceByRating = getPriceByRating(clusterPoint.properties.venuePoints);
     var foodRatings = getFoodRatings(clusterPoint.properties.venuePoints);
 
     clusterPoint.properties.venuePoints.forEach(function (p) {
@@ -140,12 +163,12 @@ allClusters.forEach(function (clusterPoint) {
             p.properties.streetId = [clusterId, p.properties.way.id].join('-');
             p.properties.clusterId = clusterId;
             p.properties.clusterRating = clusterRating;
+            p.properties.priceByRating = priceByRating;
             streets.push(p);
         });
     }
     clusterPoint.properties = {
         clusterId: clusterId,
-        ratingCounts: ratingCounts,
         foodRatings: foodRatings,
         clusterRating: clusterRating,
         bbox: clusterPoint.properties.bbox,
