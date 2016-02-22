@@ -38,7 +38,7 @@ var Component = React.createClass({
                         r: 40.5,
                         strokeStyle: 'solid',
                         strokeWidth: '1px',
-                        stroke: '#222',
+                        className: 'venue-circle__back-circle',
                         fill: 'transparent'
                     }
                 ),

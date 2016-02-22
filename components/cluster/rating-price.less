@@ -18,7 +18,8 @@
         text-align: center;
         line-height: @label-height;
         font-size: @small-text;
-        background-color: #222;
+        background-color: @panel-dark-color;
+        // border: 1px solid @panel-dark-color;
     }
 
     &__bar
@@ -33,7 +34,7 @@
     &__bar-item:before
     {
         content: '';
-        background-color: #222;
+        background-color: @panel-dark-color;
         position: absolute;
         bottom: 0;
         height: 1px;
