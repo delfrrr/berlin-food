@@ -1,4 +1,4 @@
-# Foursquare map
+# Berlin Food
 
 ## Start mongo
 
@@ -8,9 +8,13 @@
 
     $ node apps/export.js -f geojson -r 0 geojson/all-venues.json
 
+## build
+
+    $ npm run build
+
 ## start web server with map page
 
-    $ node apps/map.js
+    $ npm start
 
 ## Venue data example
 

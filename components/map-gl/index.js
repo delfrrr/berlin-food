@@ -105,7 +105,8 @@ render: function () {
         githubRibbon(
             {
                 position: 'right',
-                color: 'black'
+                color: 'black',
+                href: ' http://delfrrr.github.com/berlin-food'
             },
             'Fork me on GitHub'
         ),

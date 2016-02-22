@@ -1,10 +1,12 @@
 {
   "name": "foursquare-heatmap",
-  "version": "1.0.96",
+  "version": "1.0.97",
   "description": "foursquare heatmap",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "./build.sh",
+    "start": "node apps/map.js"
   },
   "repository": {
     "type": "git",
@@ -34,6 +36,7 @@
     "react-github-fork-ribbon": "^0.4.2",
     "react-transition": "^1.0.3",
     "request": "^2.61.0",
+    "request-promise": "^2.0.1",
     "schema-check-mongo-wrapper": "^0.1.0",
     "soundex-code": "^0.1.2",
     "sphere-knn": "^1.2.1",
