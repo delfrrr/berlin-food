@@ -15,7 +15,7 @@ var getOpacity = scale.scaleLinear().domain([1, 14, 17, 19]).range([0.8, 0.8, 0.
 var eventTarget = require('./event-target');
 var viewModel = require('../../lib/view-model');
 var CLASS_SEPARATOR = '&';
-var MAX_ZOOM = 13;
+var MAX_ZOOM = 15;
 var MIN_HIGHLIGHT_OPACITY = 0.4;
 var R = 6371;//km
 

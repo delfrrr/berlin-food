@@ -17,6 +17,7 @@ var CLASS_SEPARATOR = '&';
 var LABEL_SIZE = 12;
 var MIN_LABEL_RATING = 6;
 var MIN_ZOOM = 13;
+var MIN_HIGHLIGHT_ZOOM = 15;
 
 var getRadius = require('../../lib/venue-radius');
 
@@ -206,7 +207,7 @@ module.exports = function (mapPromise) {
         });
         map.on('mousemove', function (e) {
             var zoom = map.getZoom();
-            if (zoom >= 15) {
+            if (zoom >= MIN_HIGHLIGHT_ZOOM) {
                 map.featuresAt(e.point, {
                     radius: 25
                 }, function (err, features) {

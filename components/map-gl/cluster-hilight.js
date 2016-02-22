@@ -7,7 +7,6 @@
 
 var React = require('react');
 var viewModel = require('../../lib/view-model');
-// var chroma = require('chroma-js');
 var _ = require('lodash');
 var Component = React.createClass({
     getInitialState: function () {
