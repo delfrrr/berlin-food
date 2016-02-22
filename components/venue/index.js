@@ -64,9 +64,11 @@ var Component = React.createClass({
                         src: [icon.prefix, '44', icon.suffix].join('')
                     }
                 ),
-                React.DOM.div(
+                React.DOM.a(
                     {
-                        className: 'venue__name'
+                        className: 'venue__name',
+                        target: '_blank',
+                        href: 'https://foursquare.com/venue/' + venue.id
                     },
                     venue.name
                 ),

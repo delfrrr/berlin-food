@@ -21,8 +21,19 @@
     {
         margin-left: 42px;
         display: block;
-        font-weight: 300;
+    }
+
+    &:hover &__name
+    {
+        text-decoration: underline;
+    }
+
+    &__name
+    {
+        text-decoration: none;
+        color: @panel-text-color;
         font-size: 18px;
+        font-weight: 300;
     }
 
     &__category

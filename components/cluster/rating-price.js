@@ -58,7 +58,11 @@ var Component = React.createClass({
                     React.DOM.div(
                         {
                             className: 'rating-price__bar-label',
-                            title: 'Rating'
+                            title: util.format(
+                                'Rating: %s, Venues: %s',
+                                rating,
+                                ratingData.total
+                            )
                         },
                         rating
                     ),
@@ -70,7 +74,8 @@ var Component = React.createClass({
                             {
                                 className: 'rating-price__bar',
                                 title: util.format(
-                                    'price: %s, venues: %s',
+                                    'Rating: %s, Price: %s, Venues: %s',
+                                    rating,
                                     PRICE_DICTIONARY[priceTier],
                                     value
                                 ),
