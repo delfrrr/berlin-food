@@ -105,7 +105,7 @@ render: function () {
             {
                 position: 'right',
                 color: 'black',
-                href: ' http://delfrrr.github.com/berlin-food'
+                href: 'https://github.com/delfrrr/berlin-food'
             },
             'Fork me on GitHub'
         ),
