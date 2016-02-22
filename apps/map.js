@@ -44,7 +44,7 @@ function getAppHtml() {
         null,
         R.DOM.head(
             null,
-            R.DOM.title(null, 'Berlin Foood'),
+            R.DOM.title(null, 'Berlin Food'),
             R.DOM.meta({
                 name: 'viewport',
                 content: 'width=device-width, initial-scale=1, user-scalable=no'
