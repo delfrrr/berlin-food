@@ -14,22 +14,35 @@ var viewModel = require('../../lib/view-model');
 var clusterHighlight = require('./cluster-hilight');
 var githubRibbon = React.createFactory(require('react-github-fork-ribbon'));
 
+//default map coordinates
+var BBOX = [
+    [13.247178093419942, 52.38029861450195],
+    [13.519765, 52.65529274940338]
+];
+var LON = (BBOX[0][0] + BBOX[1][0]) / 2;
+var LAT = (BBOX[0][1] + BBOX[1][1]) / 2;
+var ZOOM = 12;
+
 require('./index.less');
 
 module.exports = React.createFactory(React.createClass({
 
 componentDidMount: function () {
-    var zoom = Math.floor(Number(localStorage.getItem('zoom')));
+    var zoom = Math.floor(Number(localStorage.getItem('zoom') || ZOOM));
     var component = this;
     var center = [
-        Number(localStorage.getItem('lng')),
-        Number(localStorage.getItem('lat'))
+        Number(localStorage.getItem('lng') || LON),
+        Number(localStorage.getItem('lat') || LAT)
     ];
     this._map = new mapboxgl.Map({
         container: this.refs.mapNode,
         style: 'mapbox://styles/delfrrr/cijgamnno000xbolxebup2s46',
         center: center,
-        zoom: zoom
+        zoom: zoom,
+        maxBounds: [
+            [13.247178093419942, 52.38029861450195],
+            [13.519765, 52.65529274940338]
+        ]
     });
 
     this._map.on('moveend', this._onMapChange);

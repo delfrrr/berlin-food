@@ -5,9 +5,11 @@
 'use strict';
 var React = require('react');
 var classnames = require('classnames');
-var chroma = require('chroma-js');
 var getRadius = require('../../lib/venue-radius');
 var scale = require('d3-scale');
+var url = require('url');
+var categoryUrlObj = url.parse('https://foursquare.com/explore');
+var  _  = require('lodash');
 
 require('./food-rating.less');
 
@@ -25,6 +27,8 @@ var ratingColorScale =  require('../../lib/rating-color-scale');
 var Component = React.createClass({
     render: function () {
         var foodRatings = this.props.foodRatings;
+        var lngLat = this.props.lngLat;
+        var radius = this.props.radius;
         return React.DOM.div(
             {
                 className: classnames(
@@ -45,9 +49,17 @@ var Component = React.createClass({
                         className: 'food-rating__rating-item',
                         key: k
                     },
-                    React.DOM.div(
+                    React.DOM.a(
                         {
-                            className: 'food-rating__short-name'
+                            className: 'food-rating__short-name',
+                            target: '_blank',
+                            href: url.format(_.assign({}, categoryUrlObj, {
+                                query: {
+                                    ll: [lngLat.lat, lngLat.lng].join(','),
+                                    q: ratingItem.category.shortName,
+                                    radius: radius
+                                }
+                            }))
                         },
                         ratingItem.category.shortName.split('/')[0].trim()
                     ),

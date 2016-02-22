@@ -20,7 +20,9 @@ var Component = React.createClass({
             },
             foodRatingComponent({
                 foodRatings: cluster.foodRatings,
-                className: 'cluster__food-rating'
+                className: 'cluster__food-rating',
+                lngLat: cluster.lngLat,
+                radius: Math.floor(cluster.radius * 1000) //m
             }),
             ratingPriceComponent({
                 priceByRating: cluster.priceByRating,
