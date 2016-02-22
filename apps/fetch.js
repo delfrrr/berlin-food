@@ -15,7 +15,6 @@
 
 var program = require('commander'),
     packagejson = require('./package.json'),
-    csv = require('to-csv'),
     turf = require('turf'),
     Promise = require('bluebird'),
     Mongo = require('schema-check-mongo-wrapper'),
@@ -136,7 +135,7 @@ function fetch(ll) {
 console.log('radius %j m, net length %j, apr time %j min', radius, net.length, Math.round(net.length/60) );
 
 /**
- * fetch cells from net recursively 
+ * fetch cells from net recursively
  * @param {Number} i
  */
 function fetchNet(i) {
