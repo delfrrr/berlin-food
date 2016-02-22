@@ -1,6 +1,6 @@
 {
   "name": "foursquare-heatmap",
-  "version": "1.0.92",
+  "version": "1.0.93",
   "description": "foursquare heatmap",
   "main": "index.js",
   "scripts": {
@@ -31,6 +31,7 @@
     "rbush": "^1.4.2",
     "react": "^0.14.5",
     "react-dom": "^0.14.5",
+    "react-github-fork-ribbon": "^0.4.2",
     "react-transition": "^1.0.3",
     "request": "^2.61.0",
     "schema-check-mongo-wrapper": "^0.1.0",

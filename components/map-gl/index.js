@@ -12,6 +12,7 @@ var panel = require('../panel');
 var venueLink = require('./link');
 var viewModel = require('../../lib/view-model');
 var clusterHighlight = require('./cluster-hilight');
+var githubRibbon = React.createFactory(require('react-github-fork-ribbon'));
 
 require('./index.less');
 
@@ -80,6 +81,21 @@ render: function () {
         }),
         venueLink(),
         clusterHighlight(),
+        React.DOM.a(
+            {
+                className: 'map__powered-by-foursquare',
+                target: '_blank',
+                href: 'http://foursquare.com'
+            }
+        ),
+        //TODO: add link
+        githubRibbon(
+            {
+                position: 'right',
+                color: 'black'
+            },
+            'Fork me on GitHub'
+        ),
         React.DOM.div({className: 'map__panel-back'}),
         panel({
             className: 'map__panel'
