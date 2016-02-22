@@ -6,6 +6,7 @@
 var React = require('react');
 var classnames = require('classnames');
 var foodRatingComponent = require('./food-rating');
+var ratingPriceComponent = require('./rating-price');
 require('./index.less');
 var Component = React.createClass({
     render: function () {
@@ -20,6 +21,10 @@ var Component = React.createClass({
             foodRatingComponent({
                 foodRatings: cluster.foodRatings,
                 className: 'cluster__food-rating'
+            }),
+            ratingPriceComponent({
+                priceByRating: cluster.priceByRating,
+                className: 'cluster__rating-price'
             })
         );
     }

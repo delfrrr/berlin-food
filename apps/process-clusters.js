@@ -52,7 +52,7 @@ function getRatingCounts(venuePoints) {
 
 /**
  * @param {Point[]} venuePoints
- * @return {{raring: number, total: number, prices: Object.<Venue.price.tier, Number>}[]}
+ * @return {Object.<Venue.rating, {total: number, prices: Object.<Venue.price.tier, Number>}>}
  */
 function getPriceByRating(venuePoints) {
     var venuesByRating =  _.groupBy(venuePoints.filter(function (p) {
@@ -60,16 +60,16 @@ function getPriceByRating(venuePoints) {
     }), function (p) {
         return Math.floor(p.properties.venue.rating);
     });
-    var pricesByRating = Object.keys(venuesByRating).map(function (rating) {
+    var pricesByRating = Object.keys(venuesByRating).reduce(function (pricesByRating, rating) {
         var venuePoints = venuesByRating[rating];
-        return {
-            rating: Number(rating),
+        pricesByRating[rating] = {
             total: venuePoints.length,
             prices: _.countBy(venuePoints, function (p) {
                 return p.properties.venue.price.tier;
             })
-        }
-    });
+        };
+        return pricesByRating;
+    }, {});
     return pricesByRating;
 }
 
@@ -163,7 +163,6 @@ allClusters.forEach(function (clusterPoint) {
             p.properties.streetId = [clusterId, p.properties.way.id].join('-');
             p.properties.clusterId = clusterId;
             p.properties.clusterRating = clusterRating;
-            p.properties.priceByRating = priceByRating;
             streets.push(p);
         });
     }
@@ -173,7 +172,8 @@ allClusters.forEach(function (clusterPoint) {
         clusterRating: clusterRating,
         bbox: clusterPoint.properties.bbox,
         radius: clusterPoint.properties.radius, //km
-        clusterSize: clusterSize //number of venues
+        clusterSize: clusterSize, //number of venues
+        priceByRating: priceByRating
     }
     clusters.push(clusterPoint)
 });

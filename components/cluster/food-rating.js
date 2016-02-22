@@ -20,19 +20,14 @@ var getCountLength = scale
     .range([10, 100])
     .domain([1, 18]);
 
+var foursquareColors = require('../../lib/foursquare-colors');
+
 /**
  * @param {Number} rating
  * @return {Sting} color
  */
 var ratingColorScale = chroma
-    .scale([
-        '#00b551',
-        '#73cf42',
-        '#C5DE35',
-        '#FFC800',
-        '#FF9600',
-        '#FF6701',
-        '#E6092C'])
+    .scale(foursquareColors())
     .domain([10, 4]);
 
 var Component = React.createClass({
