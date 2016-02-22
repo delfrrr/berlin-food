@@ -101,7 +101,6 @@ render: function () {
                 href: 'http://foursquare.com'
             }
         ),
-        //TODO: add link
         githubRibbon(
             {
                 position: 'right',

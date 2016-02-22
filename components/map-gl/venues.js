@@ -42,7 +42,7 @@ function getRating(venue) {
  * @var {Promise.<FeatureCollection>}
  */
 var venuesPromise = new Promise(function (resolve, reject) {
-    request('/geojson/processed.venues.json', function (err, res, body) {
+    request('./geojson/processed.venues.json', function (err, res, body) {
         if (err) {
             reject(err);
         } else {

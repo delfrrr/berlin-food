@@ -43,7 +43,7 @@ function getDistanceZoomScale(map) {
  * @var {Promise.<FeatureCollection>}
  */
 var clusersPromise = new Promise(function (resolve, reject) {
-    request('/geojson/processed.clusters.json', function (err, res, body) {
+    request('./geojson/processed.clusters.json', function (err, res, body) {
         if (err) {
             reject(err);
         } else {

@@ -15,7 +15,7 @@ var CLASS_SEPARATOR = '&';
  * @var {Promise.<FeatureCollection>}
  */
 var streetsPromise = new Promise(function (resolve, reject) {
-    request('/geojson/processed.streets.json', function (err, res, body) {
+    request('./geojson/processed.streets.json', function (err, res, body) {
         if (err) {
             reject(err);
         } else {
