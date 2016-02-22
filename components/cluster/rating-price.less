@@ -30,6 +30,17 @@
         transition: all 200ms;
     }
 
+    &__bar-item:before
+    {
+        content: '';
+        background-color: #222;
+        position: absolute;
+        bottom: 0;
+        height: 1px;
+        left: 1px;
+        right: 0px;
+        z-index: 0;
+    }
     &__bar-item
     {
         float: left;

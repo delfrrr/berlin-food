@@ -1,4 +1,6 @@
 @import "../../node_modules/lesshat/build/lesshat.less";
+@import "../../lib/mixins.less";
+.variables();
 
 .map
 {
@@ -13,6 +15,15 @@
         left: 0;
         right: 0;
         bottom: @panel-height;
+    }
+    &__panel-back
+    {
+        background-color: @panel-background;
+        position: absolute;
+        height: @panel-height;
+        bottom: 0;
+        left: 0;
+        right: 0;
     }
     &__panel
     {

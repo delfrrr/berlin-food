@@ -20,15 +20,7 @@ var getCountLength = scale
     .range([10, 100])
     .domain([1, 18]);
 
-var foursquareColors = require('../../lib/foursquare-colors');
-
-/**
- * @param {Number} rating
- * @return {Sting} color
- */
-var ratingColorScale = chroma
-    .scale(foursquareColors())
-    .domain([10, 4]);
+var ratingColorScale =  require('../../lib/rating-color-scale');
 
 var Component = React.createClass({
     render: function () {
@@ -81,6 +73,7 @@ var Component = React.createClass({
                         React.DOM.div(
                             {
                                 className: 'food-rating__count-bar-value',
+                                title: 'Number of venues',
                                 style: {
                                     left: parseInt(countBarLength) / 2 + '%'
                                 }

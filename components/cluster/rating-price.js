@@ -5,6 +5,7 @@
 var React = require('react');
 var classnames = require('classnames');
 var _ = require('lodash');
+var util = require('util');
 var DEFAULT_RATINGS = {
     '9': {total: 0},
     '8': {total: 0},
@@ -20,9 +21,8 @@ var DEFAULT_PRICES = {
     '4': 0
 };
 
-var foursquareColors = require('../../lib/foursquare-colors');
-var chroma = require('chroma-js');
-var priceColorScale = chroma.scale(foursquareColors()).domain([1,4]);
+var PRICE_DICTIONARY = require('../../lib/price-dictionary')();
+var priceColorScale = require('../../lib/price-color-scale');
 
 require('./rating-price.less');
 
@@ -57,7 +57,8 @@ var Component = React.createClass({
                     },
                     React.DOM.div(
                         {
-                            className: 'rating-price__bar-label'
+                            className: 'rating-price__bar-label',
+                            title: 'Rating'
                         },
                         rating
                     ),
@@ -68,7 +69,11 @@ var Component = React.createClass({
                         return React.DOM.div(
                             {
                                 className: 'rating-price__bar',
-                                title: priceTier,
+                                title: util.format(
+                                    'price: %s, venues: %s',
+                                    PRICE_DICTIONARY[priceTier],
+                                    value
+                                ),
                                 key: k,
                                 style: {
                                     height: prevHeight,

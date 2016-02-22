@@ -8,6 +8,30 @@ var classnames = require('classnames');
 var circleComponent = require('./circle');
 var scale = require('d3-scale');
 require('./index.less');
+var PRICE_DICTIONARY = require('../../lib/price-dictionary')();
+var priceColorScale = require('../../lib/price-color-scale');
+
+/**
+ * @typedef {function} ColorScale
+ * @param {number} value
+ * @return {Chroma.color}
+ */
+
+/**
+ * @constant {String[]} colors
+ */
+var COLORS = require('../../lib/foursquare-colors')();
+var chroma = require('chroma-js');
+
+/**
+ * @type ColorScale
+ */
+var votesColorScale = chroma.scale(COLORS).domain([20, 50]);
+
+/**
+ * @type ColorScale
+ */
+var usersColorScale = chroma.scale(COLORS).domain([0, 100]);
 
 var Component = React.createClass({
     render: function () {
@@ -25,6 +49,7 @@ var Component = React.createClass({
                 return c.shortName;
             }).join(', ');
         }
+        var userCountScaled = userCountScale(venue.stats.usersCount);
         return React.DOM.div(
             {
                 className: classnames(this.props.className, 'venue')
@@ -77,8 +102,8 @@ var Component = React.createClass({
                         maxValue: 4,
                         className: 'venue__circle',
                         value: price.tier,
-                        valueTitle: price.message,
-                        color: '#' + venue.ratingColor,
+                        valueTitle: PRICE_DICTIONARY[price.tier],
+                        color: String(priceColorScale(price.tier)),
                         label: 'Price'
                     })
                 ),
@@ -89,9 +114,9 @@ var Component = React.createClass({
                     circleComponent({
                         maxValue: 100,
                         className: 'venue__circle',
-                        value: userCountScale(venue.stats.usersCount),
+                        value: userCountScaled,
                         valueTitle: venue.stats.usersCount,
-                        color: '#' + venue.ratingColor,
+                        color: String(usersColorScale(userCountScaled)),
                         label: 'Users'
                     })
                 ),
@@ -103,8 +128,8 @@ var Component = React.createClass({
                         maxValue: venue.stats.usersCount,
                         className: 'venue__circle',
                         value: venue.ratingSignals,
-                        valueTitle: Math.round(venue.ratingSignals/venue.stats.usersCount * 100) + '%',
-                        color: '#' + venue.ratingColor,
+                        valueTitle: Math.round(venue.ratingSignals/venue.stats.usersCount * 100) + ' %',
+                        color: String(votesColorScale(venue.ratingSignals/venue.stats.usersCount * 100)),
                         label: 'Votes per Users'
                     })
                 )
