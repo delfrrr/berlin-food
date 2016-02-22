@@ -34,6 +34,7 @@ program
 program.parse(process.argv);
 
 if (!program.export) {
+    //webpack
     app.use(webpackMiddleware(webpack(webpackConfig), {
         publicPath: '/'
     }));
@@ -73,7 +74,7 @@ function getAppHtml() {
                 src: 'https://fb.me/react-dom-0.14.3.min.js'
             }),
             R.DOM.script({
-                src: './map-gl-page.js'
+                src: './map-gl-page.js?' + packagejson.version
             }),
             //google analytics
             R.DOM.script({
