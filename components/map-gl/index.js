@@ -11,38 +11,27 @@ var streets = require('./streets');
 var panel = require('../panel');
 var venueLink = require('./link');
 var viewModel = require('../../lib/view-model');
+var stateModel = require('../../lib/state-model');
 var clusterHighlight = require('./cluster-hilight');
 var githubRibbon = React.createFactory(require('react-github-fork-ribbon'));
 
+
 //default map coordinates
-var BBOX = [
-    [13.247178093419942, 52.38029861450195],
-    [13.519765, 52.65529274940338]
-];
-var LON = (BBOX[0][0] + BBOX[1][0]) / 2;
-var LAT = (BBOX[0][1] + BBOX[1][1]) / 2;
-var ZOOM = 12;
 
 require('./index.less');
 
 module.exports = React.createFactory(React.createClass({
 
 componentDidMount: function () {
-    var zoom = Math.floor(Number(localStorage.getItem('zoom') || ZOOM));
+    var zoom = Math.floor(stateModel.get('zoom'));
     var component = this;
-    var center = [
-        Number(localStorage.getItem('lng') || LON),
-        Number(localStorage.getItem('lat') || LAT)
-    ];
+    var center = stateModel.get('center');
     this._map = new mapboxgl.Map({
         container: this.refs.mapNode,
         style: 'mapbox://styles/delfrrr/cijgamnno000xbolxebup2s46',
         center: center,
         zoom: zoom,
-        maxBounds: [
-            [13.247178093419942, 52.38029861450195],
-            [13.519765, 52.65529274940338]
-        ]
+        maxBounds: stateModel.BBOX
     });
 
     this._map.on('moveend', this._onMapChange);
@@ -77,10 +66,10 @@ componentDidMount: function () {
 },
 
 _onMapChange: function () {
-    var center = this._map.getCenter();
-    localStorage.setItem('zoom', this._map.getZoom());
-    localStorage.setItem('lat', center.lat);
-    localStorage.setItem('lng', center.lng);
+    stateModel.set({
+        center: this._map.getCenter().toArray(),
+        zoom: this._map.getZoom()
+    })
 },
 
 render: function () {
