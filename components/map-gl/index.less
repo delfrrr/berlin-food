@@ -4,10 +4,10 @@
 
 .map
 {
-    @panel-height: 200px;
-    @panel-padding: 10px;
     position: absolute;
+
     .size(100%);
+
     &__map-node
     {
         position: absolute;
@@ -15,7 +15,50 @@
         left: 0;
         right: 0;
         bottom: @panel-height;
+        transform: translateX(0);
+        transition: transform 200ms;
     }
+    &__legend
+    {
+        opacity: 0;
+        transition: opacity 200ms;
+    }
+    &__slider
+    {
+        transform: translateX(0);
+        transition: transform 200ms;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    &_show-legend &__legend
+    {
+        opacity: 1;
+    }
+    &_show-legend &__slider
+    {
+        transform: translateX(160px);
+    }
+    &_show-legend &__open-legend
+    {
+        opacity: 0;
+    }
+    &__open-legend
+    {
+        transition: opacity 200ms;
+        position: absolute;
+        opacity: 1;
+        top: 10px;
+        left: 10px;
+        .size(32px);
+        background-image: url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTMgMThoMTh2LTJIM3Yyem0wLTVoMTh2LTJIM3Yyem0wLTd2MmgxOFY2SDN6Ii8+PC9zdmc+);
+        background-size: 100%;
+        opacity: 0.7;
+    }
+
     &__powered-by-foursquare
     {
         position: absolute;
@@ -24,6 +67,7 @@
         background-size: 100%;
         position: absolute;
         bottom: @panel-height + 3px;
+        opacity: 0.7;
         left: 3px;
         width: 522px/3.5;
         height: 63px/3.5;

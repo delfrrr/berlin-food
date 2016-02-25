@@ -8,8 +8,10 @@ var mapboxgl = require('mapboxgl');
 var clusters = require('./clusters');
 var venues = require('./venues');
 var streets = require('./streets');
+var classnames = require('classnames');
 var panel = require('../panel');
 var venueLink = require('./link');
+var mapLegend = require('../map-legend');
 var viewModel = require('../../lib/view-model');
 var stateModel = require('../../lib/state-model');
 var clusterHighlight = require('./cluster-hilight');
@@ -21,6 +23,12 @@ var githubRibbon = React.createFactory(require('react-github-fork-ribbon'));
 require('./index.less');
 
 module.exports = React.createFactory(React.createClass({
+
+getInitialState: function () {
+    return {
+        showLegend: false
+    }
+},
 
 componentDidMount: function () {
     var zoom = Math.floor(stateModel.get('zoom'));
@@ -72,36 +80,66 @@ _onMapChange: function () {
     })
 },
 
+_onMouseMove: function (e) {
+    //TODO: compute styles of panel for width and height
+    this.setState({
+        showLegend: (
+            e.nativeEvent.clientX < 150 &&
+            (
+                window.innerHeight - e.nativeEvent.clientY > 200 ||
+                this.state.showLegend
+            )
+
+        )
+    })
+},
+
 render: function () {
     return React.DOM.div(
         {
-            className: 'map'
+            className: classnames('map', {
+                'map_show-legend': this.state.showLegend
+            }),
+            onMouseMove: this._onMouseMove
         },
-        React.DOM.div({
-            className: 'map__map-node',
-            ref: 'mapNode'
-        }),
-        venueLink(),
-        clusterHighlight(),
-        React.DOM.a(
+        mapLegend(
             {
-                className: 'map__powered-by-foursquare',
-                target: '_blank',
-                href: 'http://foursquare.com'
+                className: 'map__legend'
             }
         ),
-        githubRibbon(
+        React.DOM.div(
             {
-                position: 'right',
-                color: 'black',
-                href: 'https://github.com/delfrrr/berlin-food'
+                className: 'map__slider'
             },
-            'Fork me on GitHub'
-        ),
-        React.DOM.div({className: 'map__panel-back'}),
-        panel({
-            className: 'map__panel'
-        })
+            React.DOM.div({
+                className: 'map__map-node',
+                ref: 'mapNode'
+            }),
+            venueLink(),
+            clusterHighlight(),
+            React.DOM.div({
+                className: 'map__open-legend'
+            }),
+            React.DOM.a(
+                {
+                    className: 'map__powered-by-foursquare',
+                    target: '_blank',
+                    href: 'http://foursquare.com'
+                }
+            ),
+            githubRibbon(
+                {
+                    position: 'right',
+                    color: 'black',
+                    href: 'https://github.com/delfrrr/berlin-food'
+                },
+                'Fork me on GitHub'
+            ),
+            React.DOM.div({className: 'map__panel-back'}),
+            panel({
+                className: 'map__panel'
+            })
+        )
     );
  }
 }));

@@ -1,0 +1,88 @@
+@import "../../node_modules/lesshat/build/lesshat.less";
+@import "../../lib/mixins.less";
+.variables();
+
+.align-center()
+{
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.label()
+{
+    font-size: @small-text;
+    .align-center();
+}
+
+
+.map-legend
+{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: @legend-width;
+    bottom: 0;
+    &__description
+    {
+        color: @panel-grey-color;
+        font-size: @small-text;
+        padding: 10px;
+        text-align: center;
+    }
+
+    &__cluster-label
+    {
+        .label();
+        top: calc(100% + 3px);
+    }
+    &__venue-label
+    {
+        .label();
+        bottom: 55px;
+        background-color: rgb(218, 148, 181);
+    }
+    &__cluster
+    {
+        .size(@legend-width - 30px);
+        background-color: rgb(218, 148, 181);
+        border-radius: @legend-width/2;
+        .align-center();
+        bottom: 18px;
+    }
+    &__venue
+    {
+        .size(30px);
+        background-color: rgb(151, 83, 150);
+        border-radius: 30px/2;
+        .align-center();
+        bottom: 20px;
+    }
+    &__street-label
+    {
+        .label();
+        bottom: calc(100% + 5px);
+    }
+    &__street
+    {
+        width: 2px;
+        background-color: rgb(151, 83, 150);
+        .align-center();
+        bottom: 5px;
+        top: -5px;
+    }
+    &__legend
+    {
+        position: absolute;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+    }
+    &__name
+    {
+        text-align: center;
+        font-size: 28px;
+        text-transform: uppercase;
+        font-weight: 300px;
+    }
+}
