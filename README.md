@@ -2,7 +2,7 @@
 
 ## What
 
-![alt tag](https://photos-4.dropbox.com/t/2/AACWSr7TKUfUP9_5YT4hf_ihw1da7HO9Wjoz5uQIrEHXhA/12/98910984/png/32x32/3/1456185600/0/2/Screenshot%202016-02-22%2020.13.14.png/EJz42UwYtpQBIAcoBw/VKQbdHZJt4P7kiz-eTIW8bUcfcjEbnCLMOCro71OecU?size_mode=5&size=32x32)
+![alt tag](https://cdn-images-1.medium.com/max/800/1*vGRBkANlAwY4oWyRIvj-tw.png)
 
 It's a source code of Foursquare complimentary tool, which enables exploring city neighbourhoods with a high density of restaurants. It utilizes clustering based on a street network. You can [test it here](http://delfrrr.github.io/berlin-food/).
 
