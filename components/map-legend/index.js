@@ -17,7 +17,8 @@ var Component = React.createClass({
                 className: classnames(
                     'map-legend',
                     this.props.className
-                )
+                ),
+                onMouseMove: this.props.onMouseMove
             },
             React.DOM.h1(
                 {

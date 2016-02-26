@@ -16,6 +16,7 @@ var viewModel = require('../../lib/view-model');
 var stateModel = require('../../lib/state-model');
 var clusterHighlight = require('./cluster-hilight');
 var githubRibbon = React.createFactory(require('react-github-fork-ribbon'));
+var _  = require('lodash');
 
 
 //default map coordinates
@@ -83,14 +84,7 @@ _onMapChange: function () {
 _onMouseMove: function (e) {
     //TODO: compute styles of panel for width and height
     this.setState({
-        showLegend: (
-            e.nativeEvent.clientX < 150 &&
-            (
-                window.innerHeight - e.nativeEvent.clientY > 200 ||
-                this.state.showLegend
-            )
-
-        )
+        showLegend: e.nativeEvent.clientX < 150
     })
 },
 
@@ -99,12 +93,12 @@ render: function () {
         {
             className: classnames('map', {
                 'map_show-legend': this.state.showLegend
-            }),
-            onMouseMove: this._onMouseMove
+            })
         },
         mapLegend(
             {
-                className: 'map__legend'
+                className: 'map__legend',
+                onMouseMove: this._onMouseMove
             }
         ),
         React.DOM.div(
@@ -118,7 +112,8 @@ render: function () {
             venueLink(),
             clusterHighlight(),
             React.DOM.div({
-                className: 'map__open-legend'
+                className: 'map__open-legend',
+                onMouseMove: this._onMouseMove
             }),
             React.DOM.a(
                 {
