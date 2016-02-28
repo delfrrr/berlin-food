@@ -1,5 +1,9 @@
 @import "../../node_modules/lesshat/build/lesshat.less";
 
+@import "../../lib/mixins.less";
+.variables();
+
+
 .cluster
 {
     position: absolute;
@@ -16,5 +20,30 @@
     &__food-rating
     {
         width: 50%;
+        overflow-y: hidden;
+    }
+    &__label
+    {
+        font-size: @small-text;
+        color: @panel-grey-color;
+        position: absolute;
+        top: 100%;
+        width: 50%;
+        text-align: center;
+        transition: opacity 200ms;
+        opacity: 0;
+        &_food-rating
+        {
+            left: 110px;
+            text-align: left;
+        }
+        &_rating-price
+        {
+            right: 0;
+        }
+    }
+    .panel:hover &__label
+    {
+        opacity: 1;
     }
 }

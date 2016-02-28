@@ -75,21 +75,12 @@
         width: 522px/3.5;
         height: 63px/3.5;
     }
-    &__panel-back
-    {
-        background-color: @panel-background;
-        position: absolute;
-        height: @panel-height;
-        bottom: 0;
-        left: 0;
-        right: 0;
-    }
     &__panel
     {
         position: absolute;
-        height: @panel-height - 2 * @panel-padding;
-        bottom: @panel-padding;
-        left: @panel-padding;
-        right: @panel-padding;
+        height: @panel-height + @panel-slide-height;
+        bottom: -@panel-slide-height;
+        left: 0;
+        right: 0;
     }
 }

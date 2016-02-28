@@ -130,7 +130,6 @@ render: function () {
                 },
                 'Fork me on GitHub'
             ),
-            React.DOM.div({className: 'map__panel-back'}),
             panel({
                 className: 'map__panel'
             })

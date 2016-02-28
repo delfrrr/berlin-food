@@ -31,27 +31,38 @@ var Component = React.createClass({
         }
         return React.DOM.div(
             {
-                className: classnames(this.props.className, 'panel')
+                className: classnames(
+                    this.props.className,
+                    'panel',
+                    {
+                        'panel_sliding': cluster && !selectedVenueTarget
+                    }
+                )
             },
-            (selectedVenueTarget && venueComponent({
-                className: 'panel__venue',
-                venue: venue,
-                maxUserCount: viewModel.get('maxUserCount')
-            })) ||
-            (cluster && clusterComponent({
-                className: 'panel__cluster',
-                cluster: cluster
-            })) ||
             React.DOM.div(
                 {
-                    className: 'panel__about'
+                    className: 'panel__inner'
                 },
+                (selectedVenueTarget && venueComponent({
+                    className: 'panel__venue',
+                    venue: venue,
+                    maxUserCount: viewModel.get('maxUserCount')
+                })) ||
+                (cluster && clusterComponent({
+                    className: 'panel__cluster',
+                    cluster: cluster
+                })) ||
                 React.DOM.div(
                     {
-                        className: 'panel__about-icon'
-                    }
-                ),
-                'Hover cluster or venue to see details. Click on venues to go to Foursquare website.'
+                        className: 'panel__about'
+                    },
+                    React.DOM.div(
+                        {
+                            className: 'panel__about-icon'
+                        }
+                    ),
+                    'Hover cluster or venue to see details. Click on venues to go to Foursquare website.'
+                )
             )
         );
     }

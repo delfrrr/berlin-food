@@ -4,9 +4,24 @@
 .variables();
 .panel
 {
+    &_sliding:hover
+    {
+        transform: translateY(-@panel-slide-height);
+    }
+    transform: translateY(0);
+    transition: transform 200ms;
     color: @panel-text-color;
+    background-color: @panel-background;
     position: absolute;
     cursor: default;
+    &__inner
+    {
+        position: absolute;
+        top: @panel-padding;
+        left: @panel-padding;
+        right: @panel-padding;
+        bottom: @panel-padding + @panel-slide-height;
+    }
     &__about
     {
         position: absolute;

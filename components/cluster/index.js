@@ -27,7 +27,25 @@ var Component = React.createClass({
             ratingPriceComponent({
                 priceByRating: cluster.priceByRating,
                 className: 'cluster__rating-price'
-            })
+            }),
+            React.DOM.div(
+                {
+                    className: classnames(
+                        'cluster__label',
+                        'cluster__label_food-rating'
+                    )
+                },
+                'Number of venues by category ordered by expected rating'
+            ),
+            React.DOM.div(
+                {
+                    className: classnames(
+                        'cluster__label',
+                        'cluster__label_rating-price'
+                    )
+                },
+                'Number of values by rating and price'
+            )
         );
     }
 });
