@@ -60,7 +60,7 @@ function getVenueCircleClasses(venuePoints) {
         var props = p.properties;
         var venue = props.venue;
         var rating = getRating(venue);
-        var color = clusterColor(props.clusterId);
+        var color = clusterColor(props.clusterSize);
         var radius = Math.floor(getRadius(rating));
         var brightnes = getBrightnes(rating);
         if (brightnes) {

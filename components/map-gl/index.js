@@ -16,7 +16,6 @@ var viewModel = require('../../lib/view-model');
 var stateModel = require('../../lib/state-model');
 var clusterHighlight = require('./cluster-hilight');
 var githubRibbon = React.createFactory(require('react-github-fork-ribbon'));
-var _  = require('lodash');
 
 
 //default map coordinates

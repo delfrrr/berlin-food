@@ -128,9 +128,8 @@ module.exports = function (mapPromise) {
         }));
 
         var clusterClasses = _.groupBy(clusterPoints, function (cp) {
-            var clusterId = cp.properties.clusterId;
             var minzoom = Math.floor(getMinZoomLevel(cp.properties.clusterRating));
-            var color = chroma(clusterColor(clusterId)).brighten(1).css();
+            var color = chroma(clusterColor(cp.properties.clusterSize)).brighten(1).css();
             var radius = Number(cp.properties.radius.toFixed(3));
             return [
                 color,

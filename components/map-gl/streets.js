@@ -36,7 +36,7 @@ module.exports = function (mapPromise) {
             data: result[0]
         });
         var classes = _.groupBy(lines, function (line) {
-            var color = chroma(clusterColor(line.properties.clusterId))
+            var color = chroma(clusterColor(line.properties.clusterSize))
                 .brighten(1)
                 .css();
             return [

@@ -8,6 +8,7 @@ var program = require('commander');
 var turf = require('turf');
 var fs = require('fs');
 var _ = require('lodash');
+var maxClusterSize = 0;
 
 
 program
@@ -143,6 +144,9 @@ function getFoodRatings(venuePoints) {
 allClusters.forEach(function (clusterPoint) {
     var clusterId = clusterPoint.properties.clusterId;
     var clusterSize = clusterPoint.properties.venuePoints.length;
+    if (maxClusterSize < clusterSize) {
+        maxClusterSize = clusterSize;
+    }
     var ratingCounts = getRatingCounts(clusterPoint.properties.venuePoints);
     var clusterRating = getClusterRating(ratingCounts);
     if (clusterRating < program.rating) {
@@ -154,6 +158,7 @@ allClusters.forEach(function (clusterPoint) {
     clusterPoint.properties.venuePoints.forEach(function (p) {
         p.properties.clusterId = clusterId;
         p.properties.clusterRating = clusterRating;
+        p.properties.clusterSize = clusterSize;
         p.properties.venueId = p.properties.venue.id;
         p.properties.name = p.properties.venue.name;
         venues.push(p);
@@ -163,6 +168,7 @@ allClusters.forEach(function (clusterPoint) {
             p.properties.streetId = [clusterId, p.properties.way.id].join('-');
             p.properties.clusterId = clusterId;
             p.properties.clusterRating = clusterRating;
+            p.properties.clusterSize = clusterSize;
             streets.push(p);
         });
     }
@@ -192,6 +198,7 @@ venues.sort(function (p1, p2) {
 console.log('venues', venues.length);
 console.log('clusters', clusters.length);
 console.log('streets', streets.length);
+console.log('maxClusterSize', maxClusterSize);
 
 var folder = process.cwd() + '/' + program.out;
 
