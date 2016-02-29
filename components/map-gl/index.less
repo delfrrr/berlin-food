@@ -5,8 +5,13 @@
 .map
 {
     position: absolute;
-
+    overflow: hidden;
     .size(100%);
+
+    & .mapboxgl-canvas-container
+    {
+        overflow: hidden;
+    }
 
     &__map-node
     {
@@ -17,6 +22,7 @@
         bottom: @panel-height;
         transform: translateX(0);
         transition: transform 200ms;
+        overflow: hidden;
     }
     &__legend
     {

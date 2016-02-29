@@ -45,6 +45,12 @@ componentDidMount: function () {
     this._map.on('moveend', this._onMapChange);
     this._map.on('zoomend', this._onMapChange);
 
+    window.addEventListener('resize', function () {
+        component._map.resize();
+    });
+    setTimeout(function () {
+        component._map.resize();
+    });
     var mapPromise = new Promise(function (resolve) {
         component._map.on('load', function () {
             resolve(component._map);
