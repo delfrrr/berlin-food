@@ -48,9 +48,13 @@ componentDidMount: function () {
     window.addEventListener('resize', function () {
         component._map.resize();
     });
+
+    //make sure map fit page
+    //TODO: check if it still required
     setTimeout(function () {
         component._map.resize();
     });
+
     var mapPromise = new Promise(function (resolve) {
         component._map.on('load', function () {
             resolve(component._map);
@@ -102,13 +106,12 @@ render: function () {
         },
         mapLegend(
             {
-                className: 'map__legend',
-                onMouseMove: this._onMouseMove
+                className: 'map__legend'
             }
         ),
         React.DOM.div(
             {
-                className: 'map__slider'
+                className: 'map__map'
             },
             React.DOM.div({
                 className: 'map__map-node',
@@ -116,10 +119,6 @@ render: function () {
             }),
             venueLink(),
             clusterHighlight(),
-            React.DOM.div({
-                className: 'map__open-legend',
-                onMouseMove: this._onMouseMove
-            }),
             React.DOM.a(
                 {
                     className: 'map__powered-by-foursquare',

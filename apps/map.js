@@ -55,7 +55,8 @@ function getAppHtml() {
                 rel: 'stylesheet',
                 href: '//api.tiles.mapbox.com/mapbox-gl-js/v0.12.2/mapbox-gl.css'
             }),
-            //becouse we load css and js together we have to put into the head
+            //becouse we load css and js together we have to put it into the head
+            //TODO: decouple js and css
             program.export ?
             //prod
             [
@@ -119,6 +120,7 @@ function getAppHtml() {
                 })
             ]
         ),
+        //TODO: put panel here to avoid flipping
         R.DOM.body(null, '')
     ));
 }
