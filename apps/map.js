@@ -41,6 +41,7 @@ if (!program.export) {
 }
 
 function getAppHtml() {
+    var k = 0;
     return RDS.renderToStaticMarkup(R.DOM.html(
         null,
         R.DOM.head(
@@ -53,60 +54,72 @@ function getAppHtml() {
             R.DOM.link({
                 rel: 'stylesheet',
                 href: '//api.tiles.mapbox.com/mapbox-gl-js/v0.12.2/mapbox-gl.css'
-            })
+            }),
+            //becouse we load css and js together we have to put into the head
+            program.export ?
+            //prod
+            [
+                null,
+                R.DOM.script({
+                    key: k++,
+                    src: '//api.tiles.mapbox.com/mapbox-gl-js/v0.12.2/mapbox-gl.js'
+                }),
+                R.DOM.script({
+                    key: k++,
+                    dangerouslySetInnerHTML: {
+                        __html: 'mapboxgl.accessToken = \'' + MAP_BOX_TOKEN + '\';'
+                    }
+                }),
+                R.DOM.script({
+                    key: k++,
+                    src: 'https://fb.me/react-0.14.3.min.js'
+                }),
+                R.DOM.script({
+                    key: k++,
+                    src: 'https://fb.me/react-dom-0.14.3.min.js'
+                }),
+                R.DOM.script({
+                    key: k++,
+                    src: './map-gl-page.js?' + packagejson.version
+                }),
+                //google analytics
+                R.DOM.script({
+                    key: k++,
+                    dangerouslySetInnerHTML: {
+                        __html: '(function(i,s,o,g,r,a,m){i[\'GoogleAnalyticsObject\']=r;i[r]=i[r]||function(){  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)  })(window,document,\'script\',\'//www.google-analytics.com/analytics.js\',\'ga\');  ga(\'create\', \'UA-74155131-1\', \'auto\');  ga(\'send\', \'pageview\');'
+                    }
+                })
+
+            ] :
+            //dev
+            [
+                R.DOM.script({
+                    key: k++,
+                    src: '//api.tiles.mapbox.com/mapbox-gl-js/v0.12.2/mapbox-gl.js'
+                }),
+                R.DOM.script({
+                    key: k++,
+                    dangerouslySetInnerHTML: {
+                        __html: 'mapboxgl.accessToken = \'' + MAP_BOX_TOKEN + '\';'
+                    }
+                }),
+                R.DOM.script({
+                    key: k++
+                }, 'window.__DEV__ = true;'),
+                R.DOM.script({
+                    key: k++,
+                    src: 'https://fb.me/react-0.14.3.js'
+                }),
+                R.DOM.script({
+                    key: k++,
+                    src: 'https://fb.me/react-dom-0.14.3.js'
+                }),
+                R.DOM.script({
+                    src: '/components/map-gl-page.js'
+                })
+            ]
         ),
-        program.export ?
-        //prod
-        R.DOM.body(
-            null,
-            R.DOM.script({
-                src: '//api.tiles.mapbox.com/mapbox-gl-js/v0.12.2/mapbox-gl.js'
-            }),
-            R.DOM.script({
-                dangerouslySetInnerHTML: {
-                    __html: 'mapboxgl.accessToken = \'' + MAP_BOX_TOKEN + '\';'
-                }
-            }),
-            R.DOM.script({
-                src: 'https://fb.me/react-0.14.3.min.js'
-            }),
-            R.DOM.script({
-                src: 'https://fb.me/react-dom-0.14.3.min.js'
-            }),
-            R.DOM.script({
-                src: './map-gl-page.js?' + packagejson.version
-            }),
-            //google analytics
-            R.DOM.script({
-                dangerouslySetInnerHTML: {
-                    __html: '(function(i,s,o,g,r,a,m){i[\'GoogleAnalyticsObject\']=r;i[r]=i[r]||function(){  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)  })(window,document,\'script\',\'//www.google-analytics.com/analytics.js\',\'ga\');  ga(\'create\', \'UA-74155131-1\', \'auto\');  ga(\'send\', \'pageview\');'
-                }
-            })
-
-        ) :
-        //dev
-        R.DOM.body(
-            null,
-            R.DOM.script({
-                src: '//api.tiles.mapbox.com/mapbox-gl-js/v0.12.2/mapbox-gl.js'
-            }),
-            R.DOM.script({
-                dangerouslySetInnerHTML: {
-                    __html: 'mapboxgl.accessToken = \'' + MAP_BOX_TOKEN + '\';'
-                }
-            }),
-            R.DOM.script({}, 'window.__DEV__ = true;'),
-            R.DOM.script({
-                src: 'https://fb.me/react-0.14.3.js'
-            }),
-            R.DOM.script({
-                src: 'https://fb.me/react-dom-0.14.3.js'
-            }),
-            R.DOM.script({
-                src: '/components/map-gl-page.js'
-            })
-        )
-
+        R.DOM.body(null, '')
     ));
 }
 
