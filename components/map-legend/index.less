@@ -76,7 +76,7 @@
         position: absolute;
         left: 10px;
         right: 10px;
-        bottom: 10px;
+        bottom: 45px;
     }
     &__name
     {
@@ -84,5 +84,53 @@
         font-size: 28px;
         text-transform: uppercase;
         font-weight: 300px;
+    }
+    &__cluster-scale
+    {
+        position: absolute;
+        bottom: 20px;
+        left: 10px;
+        right: 10px;
+        @height: 16px;
+        @label-width: 35px;
+        height: @height;
+        .cluster-scale-label()
+        {
+            position: absolute;
+            height: @height;
+            bottom: 0px;
+            line-height: @height;
+            font-size: @small-text * 0.9;
+            text-align: center;
+            padding: 0 5px;
+            // color: white;
+        }
+        &-label_left
+        {
+            .cluster-scale-label();
+            left: 0;
+        }
+        &-label_right
+        {
+            .cluster-scale-label();
+            right: 0;
+        }
+        &-label_bottom
+        {
+            .cluster-scale-label();
+            left: 0;
+            right: 0;
+            font-size: @small-text;
+        }
+        &-bar
+        {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 4px;
+            bottom: -4px;
+            opacity: 0.7;
+            background: linear-gradient(to right, #0732A2 0%, #F94877 100%);
+        }
     }
 }

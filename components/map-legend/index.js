@@ -69,6 +69,34 @@ var Component = React.createClass({
                         'Venue'
                     )
                 )
+            ),
+            React.DOM.div(
+                {
+                    className: 'map-legend__cluster-scale'
+                },
+                React.DOM.div(
+                    {
+                        className: 'map-legend__cluster-scale-bar'
+                    }
+                ),
+                React.DOM.div(
+                    {
+                        className: 'map-legend__cluster-scale-label_left'
+                    },
+                    '0'
+                ),
+                React.DOM.div(
+                    {
+                        className: 'map-legend__cluster-scale-label_right'
+                    },
+                    '150'
+                ),
+                React.DOM.div(
+                    {
+                        className: 'map-legend__cluster-scale-label_bottom'
+                    },
+                    'Venues'
+                )
             )
         );
     }
