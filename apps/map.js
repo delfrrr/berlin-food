@@ -73,11 +73,11 @@ function getAppHtml() {
                 }),
                 R.DOM.script({
                     key: k++,
-                    src: 'https://fb.me/react-0.14.3.min.js'
+                    src: '//cdnjs.cloudflare.com/ajax/libs/react/0.14.3/react.min.js'
                 }),
                 R.DOM.script({
                     key: k++,
-                    src: 'https://fb.me/react-dom-0.14.3.min.js'
+                    src: '//cdnjs.cloudflare.com/ajax/libs/react/0.14.3/react-dom.min.js'
                 }),
                 R.DOM.script({
                     key: k++,
@@ -109,13 +109,14 @@ function getAppHtml() {
                 }, 'window.__DEV__ = true;'),
                 R.DOM.script({
                     key: k++,
-                    src: 'https://fb.me/react-0.14.3.js'
+                    src: '//cdnjs.cloudflare.com/ajax/libs/react/0.14.3/react.js'
                 }),
                 R.DOM.script({
                     key: k++,
-                    src: 'https://fb.me/react-dom-0.14.3.js'
+                    src: '//cdnjs.cloudflare.com/ajax/libs/react/0.14.3/react-dom.js'
                 }),
                 R.DOM.script({
+                    key: k++,
                     src: '/components/map-gl-page.js'
                 })
             ]

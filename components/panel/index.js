@@ -61,7 +61,7 @@ var Component = React.createClass({
                             className: 'panel__about-icon'
                         }
                     ),
-                    'Hover cluster or venue to see details. Click on venues to go to Foursquare website.'
+                    'Hover circles to see details'
                 )
             )
         );

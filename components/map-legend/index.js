@@ -7,6 +7,10 @@
 
 var React = require('react');
 var classnames  = require('classnames');
+var clusterColor = require('../../lib/cluster-color');
+var PRICE_DICTIONARY = require('../../lib/price-dictionary')();
+var util = require('util');
+var foursquareColors = require('../../lib/foursquare-colors')();
 
 require('./index.less');
 
@@ -76,7 +80,14 @@ var Component = React.createClass({
                 },
                 React.DOM.div(
                     {
-                        className: 'map-legend__cluster-scale-bar'
+                        className: 'map-legend__cluster-scale-bar',
+                        style: {
+                            background: util.format(
+                                'linear-gradient(to right, %s 0%, %s 100%)',
+                                clusterColor(0),
+                                clusterColor(clusterColor.MAX_CLUSTER_SIZE)
+                            )
+                        }
                     }
                 ),
                 React.DOM.div(
@@ -89,7 +100,7 @@ var Component = React.createClass({
                     {
                         className: 'map-legend__cluster-scale-label_right'
                     },
-                    '150'
+                    clusterColor.MAX_CLUSTER_SIZE
                 ),
                 React.DOM.div(
                     {
