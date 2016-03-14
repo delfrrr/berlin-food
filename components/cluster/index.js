@@ -19,6 +19,7 @@ var Component = React.createClass({
                 )
             },
             foodRatingComponent({
+                clusterId: cluster.clusterId,
                 foodRatings: cluster.foodRatings,
                 className: 'cluster__food-rating',
                 lngLat: cluster.lngLat,

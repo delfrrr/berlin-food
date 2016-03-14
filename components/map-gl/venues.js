@@ -38,6 +38,8 @@ function getRating(venue) {
     return Number(((venue.rating || 5)).toFixed(1));
 }
 
+var ratingColorScale =  require('../../lib/rating-color-scale');
+
 /**
  * @var {Promise.<FeatureCollection>}
  */
@@ -60,11 +62,14 @@ function getVenueCircleClasses(venuePoints) {
         var props = p.properties;
         var venue = props.venue;
         var rating = getRating(venue);
+        var color2 = ratingColorScale(rating);
         var color = clusterColor(props.clusterSize);
         var radius = Math.floor(getRadius(rating));
         var brightnes = getBrightnes(rating);
         if (brightnes) {
-            color = chroma(color).brighten(brightnes).css()
+            color2 = color2.brighten(brightnes).css()
+        } else {
+            color2 = color2.darken(1).css()
         }
         var minzoom = Math.floor(getMinZoomLevel(props.clusterRating));
         if (minzoom < MIN_ZOOM) {
@@ -73,7 +78,8 @@ function getVenueCircleClasses(venuePoints) {
         return [
             color,
             radius,
-            minzoom
+            minzoom,
+            color2
         ].join(CLASS_SEPARATOR);
     });
 }
@@ -111,7 +117,7 @@ function addCircleClasses(batch, classes) {
             minzoom: Number(classAr[2]),
             paint: {
                 'circle-radius': {
-                    stops: [[13, 3], [14, 3],  [17, radius], [20, radius]]
+                    stops: [[14, 3],  [16, radius], [20, radius]]
                 }
             }
         };
@@ -121,7 +127,9 @@ function addCircleClasses(batch, classes) {
             filter: filter,
             interactive: true,
             paint: {
-                'circle-color': classAr[0]
+                'circle-color': {
+                    stops: [[15.9, classAr[0]],  [16, classAr[3]]]
+                }
             }
         }), 'rail-label');
         //selection layer
@@ -189,9 +197,22 @@ module.exports = function (mapPromise) {
             data: result[0]
         });
         var venueClasses = getVenueCircleClasses(venuePoints);
-        var goodVenues = venuePoints.filter(function (p) {
-            return p.properties.venue.rating >= MIN_LABEL_RATING;
+        var goodVenues = [];
+        /**
+         * @type {Object.<ClusterId, Point[]>}
+         */
+        var venuesByClusterId = {};
+        venuePoints.forEach(function (p) {
+            if (p.properties.venue.rating >= MIN_LABEL_RATING) {
+                goodVenues.push(p);
+            }
+            var clusterId = p.properties.clusterId;
+            if (!venuesByClusterId[clusterId]) {
+                venuesByClusterId[clusterId] = [];
+            }
+            venuesByClusterId[clusterId].push(p);
         });
+        viewModel.set('venuesByClusterId', venuesByClusterId);
         var vanueLabelClasses = getVenueLabelClasses(goodVenues);
 
         //set max user count

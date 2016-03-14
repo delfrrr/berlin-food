@@ -5,28 +5,45 @@
 'use strict';
 var React = require('react');
 var classnames = require('classnames');
-var getRadius = require('../../lib/venue-radius');
-var scale = require('d3-scale');
 var url = require('url');
+var util = require('util');
+var priceDistionary = require('../../lib/price-dictionary')();
 var categoryUrlObj = url.parse('https://foursquare.com/explore');
 var  _  = require('lodash');
+var viewModel = require('../../lib/view-model');
 
 require('./food-rating.less');
 
-/**
- * @param {number} count - number of venues
- * @return {number} percentage
- */
-var getCountLength = scale
-    .scaleLinear()
-    .range([10, 100])
-    .domain([1, 18]);
-
 var ratingColorScale =  require('../../lib/rating-color-scale');
+
+function getVenuesByCategory(clusterId) {
+    var venuePoints = viewModel.get('venuesByClusterId')[clusterId];
+    /**
+     * @type {Object.<VenueCategory.id, Point>}
+     */
+    var venuesByCategoryId = {};
+
+    venuePoints.forEach(function (vp) {
+        var venue = vp.properties.venue;
+        var category = venue.categories && venue.categories[0];
+        if (category && venue.rating) {
+            venuesByCategoryId[category.id] = (
+                venuesByCategoryId[category.id] || []
+            ).concat([venue]);
+        }
+    });
+    _.forEach(venuesByCategoryId, function (venues) {
+        venues.sort(function (v1, v2) {
+            return v1.rating - v2.rating;
+        });
+    })
+    return venuesByCategoryId;
+}
 
 var Component = React.createClass({
     render: function () {
         var foodRatings = this.props.foodRatings;
+        var venuesByCategory = getVenuesByCategory(this.props.clusterId);
         var lngLat = this.props.lngLat;
         var radius = this.props.radius;
         return React.DOM.div(
@@ -37,13 +54,11 @@ var Component = React.createClass({
                 )
             },
             foodRatings.map(function (ratingItem, k) {
-                var color = ratingColorScale(ratingItem.rating + 2); //becouse 7 is max
-                var countBarLength = Math.floor(getCountLength(ratingItem.count)) + '%';
-                var ratingBarSize = Math.floor(getRadius(ratingItem.rating));
-                if (ratingBarSize < 5) {
-                    ratingBarSize = 5;
-                }
                 var icon = ratingItem.category.icon;
+                var venues = venuesByCategory[ratingItem.category.id];
+                if (!venues) {
+                    return null;
+                }
                 return React.DOM.div(
                     {
                         className: 'food-rating__rating-item',
@@ -67,46 +82,32 @@ var Component = React.createClass({
                         {
                             className: 'food-rating__bar'
                         },
-                        React.DOM.img(
-                            {
-                                className: 'food-rating__icon',
-                                src: [icon.prefix, '32', icon.suffix].join('')
-                            }
-                        ),
-                        React.DOM.div(
-                            {
-                                className: 'food-rating__count-bar',
-                                style: {
-                                    width: countBarLength,
-                                    backgroundColor: color
+                        venues.map(function (venue, k) {
+                            return React.DOM.a(
+                                {
+                                    className: 'food-rating__icon',
+                                    target: '_blank',
+                                    key: k,
+                                    href: 'https://foursquare.com/venue/' + venue.id,
+                                    title: util.format(
+                                        '%s \nRating: %s\nPrice: %s',
+                                        venue.name,
+                                        venue.rating,
+                                        venue.price ? priceDistionary[venue.price.tier] : 'unknown'
+                                    ),
+                                    style: {
+                                        WebkitMask: util.format(
+                                            'url(%s)',
+                                            [icon.prefix, '32', icon.suffix].join('')
+                                        ),
+                                        maskType: 'alpha',
+                                        background: ratingColorScale(Math.floor(venue.rating))
+                                    }
                                 }
-                            }
-                        ),
-                        React.DOM.div(
-                            {
-                                className: 'food-rating__count-bar-value',
-                                title: 'Number of venues',
-                                style: {
-                                    left: parseInt(countBarLength) / 2 + '%'
-                                }
-                            },
-                            ratingItem.count
-                        ),
-                        React.DOM.div(
-                            {
-                                className: 'food-rating__rating-bar',
-                                style: {
-                                    left: countBarLength,
-                                    width:   ratingBarSize,
-                                    height:  ratingBarSize,
-                                    // backgroundColor: color,
-                                    borderColor: color,
-                                    borderRadius: ratingBarSize
-                                }
-                            }
-                        )
-                    )
+                            )
 
+                        })
+                    )
                 );
             })
         );

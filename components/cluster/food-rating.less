@@ -28,50 +28,20 @@
         line-height: @bar-heigth;
         font-size: @small-text;
     }
-    &__rating-bar
+    &__bar
     {
         position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        transition: all 200ms;
-        border-width: 1px;
-        border-style: solid;
-    }
-    &__count-bar-value
-    {
-        background-color: @panel-background;
-        font-size: @small-text * 0.9;
-        position: absolute;
-        height: @bar-heigth;
-        line-height: @bar-heigth;
         top: 0;
-        transition: left 200ms;
-        transform: translateX(-50%);
-        padding: 0 2px;
-        color: @panel-grey-color;
-    }
-    &__count-bar
-    {
-        position: absolute;
-        top: calc(50%-0.5);
-        transition: width 200ms;
-        height: 1px;
+        bottom: 0;
+        left: 120px;
+        right: 0;
     }
     &__icon
     {
         .size(32px);
-        position: absolute;
-        left: -5px;
-        top: 50%;
-        opacity: 0.8;
-        transform: translate(-100%, -50%);
-    }
-    &__bar
-    {
-        left: 142px;
-        height: 100%;
-        top: 0;
-        right: 35px;
-        position: absolute;
+        display: block;
+        margin-left: -10px;
+        transform: scale(0.8);
+        float: left;
     }
 }
